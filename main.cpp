@@ -83,6 +83,15 @@ void startGame()
     system("cls");
 #endif
 
+    if(game.getFoodLeft()==0)
+    {
+        cout << "victory!!\n";   
+    }
+    else
+    {
+        cout << "loser!!!!1\n";
+    }
+
 #ifdef LINUX
     resetTerminalInputMode(saved);
 #endif

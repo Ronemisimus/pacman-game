@@ -18,4 +18,5 @@ public:
     void redrawBoard();
     void updateBoard();
     bool isDone();
+    int getFoodLeft();
 };

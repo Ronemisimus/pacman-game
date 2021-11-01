@@ -104,7 +104,7 @@ void Game::drawPos(int x, int y)
 
 bool Game::isDone()
 {
-    return player.getLives()==0;
+    return player.getLives()==0 || foodLeft==0;
 }
 
 Direction getNewDir()
@@ -151,7 +151,15 @@ Direction getNewDir()
 
 void Game::updateBoard()
 {
-    bool moved = player.movePacman(board);
+    player.setFrames(player.getFrames()+1);
+    bool moved = true;
+    if(player.getFrames()==PACMAN_SPEED)
+    {
+        moved = player.movePacman(board, foodLeft);
+        player.setFrames(0);
+    }
+
+
 
     Direction dir = getNewDir();
 
@@ -165,9 +173,14 @@ void Game::updateBoard()
 
 void Game::redrawBoard()
 {
-    Position prevPlayer = player.getPrevPos();
-    Position playerPos = player.getPos();
+    Position prev = player.getPrevPos();
+    Position next = player.getPos();
+    
+    drawPos(prev.x,prev.y);
+    drawPos(next.x,next.y);
+}
 
-    drawPos(prevPlayer.x,prevPlayer.y);
-    drawPos(playerPos.x, playerPos.y);
+int Game::getFoodLeft()
+{
+    return foodLeft;
 }
