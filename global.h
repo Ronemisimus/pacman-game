@@ -13,7 +13,7 @@
 #define STAY_KEY_op2 83
 #define ESC_KEY 27
 
-#define PACMAN_SPEED 1
+#define PACMAN_SPEED 1 // represents frames between moves - lower is faster
 #define GHOST_SPEED PACMAN_SPEED*2
 
 #define CHAR_WALL '#'
