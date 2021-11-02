@@ -12,21 +12,21 @@ bool pacman::movePacman(cell board[boardSize][boardSize], int& foodLeft)
     switch (dir)
     {
     case RIGHT:
-        next.x = (pos.x + PACMAN_SPEED)%boardSize;
+        next.x = (pos.x + 1)%boardSize;
         next.y = pos.y;
         break;
     case LEFT:
-        next.x = (pos.x - PACMAN_SPEED)%boardSize;
+        next.x = (pos.x - 1)%boardSize;
         if(next.x<0) next.x = boardSize + next.x;
         next.y = pos.y;
         break;
     case DOWN:
         next.x = pos.x;
-         next.y = (pos.y+PACMAN_SPEED)%boardSize;
+         next.y = (pos.y+1)%boardSize;
        break;
     case UP:
         next.x = pos.x ;
-        next.y = (pos.y-PACMAN_SPEED)%boardSize;
+        next.y = (pos.y-1)%boardSize;
         if(next.y<0) next.y = boardSize + next.y;
         break;
     case STAY:
