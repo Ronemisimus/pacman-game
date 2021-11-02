@@ -1,6 +1,6 @@
 #include "game.h"
 
-Game::Game(): foodLeft(0), player(pacman())
+Game::Game(): enemy(ghost()) ,foodLeft(0), player(pacman())
 {
     for (int i = 0; i < boardSize; i++)
     {
@@ -152,14 +152,18 @@ Direction getNewDir()
 void Game::updateBoard()
 {
     player.setFrames(player.getFrames()+1);
+    enemy.setFrames(enemy.getFrames()+1);
     bool moved = true;
     if(player.getFrames()==PACMAN_SPEED)
     {
         moved = player.movePacman(board, foodLeft);
         player.setFrames(0);
     }
-
-
+    if(enemy.getFrames()==GHOST_SPEED)
+    {
+        enemy.moveGhost(board);
+        enemy.setFrames(0);
+    }
 
     Direction dir = getNewDir();
 
@@ -175,9 +179,15 @@ void Game::redrawBoard()
 {
     Position prev = player.getPrevPos();
     Position next = player.getPos();
+
+    Position enemyPrev = enemy.getPrevPos();
+    Position enemyNext = enemy.getPos();
     
     drawPos(prev.x,prev.y);
     drawPos(next.x,next.y);
+    drawPos(enemyPrev.x, enemyPrev.y);
+    drawPos(enemyNext.x, enemyNext.y);
+
 }
 
 int Game::getFoodLeft()

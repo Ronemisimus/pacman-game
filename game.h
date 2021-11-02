@@ -1,12 +1,15 @@
 
+#pragma once
 #include "iofunctions.h"
 #include "global.h"
+#include "ghost.h"
 #include "pacman.h"
 
 class Game
 {
 private:
     cell board[boardSize][boardSize];
+    ghost enemy;
     int foodLeft;
     pacman player;
 

@@ -67,6 +67,8 @@ void startGame()
     setTerminalInputMode(&saved);
 #endif
 
+    srand(time(NULL));
+
     Game game;
     game.initBoard();
     game.drawBoard();

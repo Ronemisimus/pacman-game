@@ -1,14 +1,14 @@
 
 #include "pacman.h"
 #include "game.h"
-pacman::pacman(): lives(300), initialPos(Position({1,1})), dir(STAY), points(0), prev(Position({-1,-1})), framesSinceMove(0)
+pacman::pacman(): lives(300), initialPos(1,1), dir(STAY), points(0), prev(-1,-1), framesSinceMove(0)
 {
     pos = initialPos;
 }
 
 bool pacman::movePacman(cell board[boardSize][boardSize], int& foodLeft)
 {
-    Position next;
+    Position next(0,0);
     switch (dir)
     {
     case RIGHT:

@@ -1,24 +1,28 @@
 #pragma once
 #include "global.h"
+#include "iofunctions.h"
 
-class pacman
+struct path
 {
-private:
-    int lives;
+    Direction way;
+    bool available;
+};
+
+class ghost
+{
     Position initialPos;
     Direction dir;
-    int points;
     Position prev;
     Position pos;
     int framesSinceMove;
 public:
-    pacman();
-    bool movePacman(cell board[boardSize][boardSize], int& foodLeft);
+    ghost();
+    void moveGhost(cell board[boardSize][boardSize]);
     void setDir(Direction dir);
-    int getLives();
-    int getPoints();
     Position getPos();
     Position getPrevPos();
     void setFrames(int frames);
     int getFrames();
+    void getPossiblePos(cell board[boardSize][boardSize], path Possibilities[4]);
 };
+
