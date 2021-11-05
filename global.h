@@ -39,7 +39,8 @@ enum Direction
     UP,
     DOWN,
     STAY,
-    NOCHANGE
+    NOCHANGE,
+    PAUSE
 };
 
 enum gameObjectType {

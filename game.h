@@ -12,6 +12,8 @@ private:
     ghost enemy;
     int foodLeft;
     pacman player;
+    bool isPaused;
+    bool waitForMove; // after strike pause until player moves
 
     void drawPos(int x, int y);
 public:

@@ -1,6 +1,6 @@
 #include "game.h"
 
-Game::Game(): enemy(ghost()) ,foodLeft(0), player(pacman())
+Game::Game(): enemy(ghost()) ,foodLeft(0), player(pacman()), isPaused(false), waitForMove(true)
 {
     for (int i = 0; i < boardSize; i++)
     {
@@ -138,6 +138,8 @@ Direction getNewDir()
             return STAY;
             break;
         case ESC_KEY:
+            return PAUSE;
+            break;
         default:
             return NOCHANGE;
             break;
@@ -151,32 +153,41 @@ Direction getNewDir()
 
 void Game::updateBoard()
 {
-    player.setFrames(player.getFrames()+1);
-    enemy.setFrames(enemy.getFrames()+1);
-    bool strike = false;
-    if(player.getFrames()==PACMAN_SPEED)
+    if(!waitForMove && !isPaused)
     {
-        strike = !player.movePacman(board, foodLeft);
-        player.setFrames(0);
-    }
-    if(enemy.getFrames()==GHOST_SPEED)
-    {
-        if(!strike)
-            strike = !enemy.moveGhost(board);
-        enemy.setFrames(0);
-    }
+        player.setFrames(player.getFrames()+1);
+        enemy.setFrames(enemy.getFrames()+1);
+        bool strike = false;
+        if(player.getFrames()==PACMAN_SPEED)
+        {
+            strike = !player.movePacman(board, foodLeft);
+            player.setFrames(0);
+        }
+        if(enemy.getFrames()==GHOST_SPEED)
+        {
+            if(!strike)
+                strike = !enemy.moveGhost(board);
+            enemy.setFrames(0);
+        }
 
-    if(strike)
-    {
-        this->redrawBoard();
-        player.strike(board);
-        enemy.strike(board);
+        if(strike)
+        {
+            this->redrawBoard();
+            player.strike(board);
+            enemy.strike(board);
+            waitForMove = true;
+        }
     }
 
     Direction dir = getNewDir();
-
-    if(dir!=NOCHANGE)
+    if(!waitForMove && dir == PAUSE)
     {
+        isPaused = !isPaused;
+    }
+
+    if(dir!=NOCHANGE && dir!=PAUSE)
+    {
+        waitForMove = false;
         player.setDir(dir);
     }
 
