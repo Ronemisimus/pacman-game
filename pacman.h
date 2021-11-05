@@ -21,4 +21,5 @@ public:
     Position getPrevPos();
     void setFrames(int frames);
     int getFrames();
+    void strike(cell board[boardSize][boardSize]);
 };

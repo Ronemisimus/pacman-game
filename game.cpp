@@ -153,16 +153,24 @@ void Game::updateBoard()
 {
     player.setFrames(player.getFrames()+1);
     enemy.setFrames(enemy.getFrames()+1);
-    bool moved = true;
+    bool strike = false;
     if(player.getFrames()==PACMAN_SPEED)
     {
-        moved = player.movePacman(board, foodLeft);
+        strike = !player.movePacman(board, foodLeft);
         player.setFrames(0);
     }
     if(enemy.getFrames()==GHOST_SPEED)
     {
-        enemy.moveGhost(board);
+        if(!strike)
+            strike = !enemy.moveGhost(board);
         enemy.setFrames(0);
+    }
+
+    if(strike)
+    {
+        this->redrawBoard();
+        player.strike(board);
+        enemy.strike(board);
     }
 
     Direction dir = getNewDir();

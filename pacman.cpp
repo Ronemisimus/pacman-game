@@ -42,10 +42,6 @@ bool pacman::movePacman(cell board[boardSize][boardSize], int& foodLeft)
     if(board[next.x][next.y].data==WALL ||
         board[next.x][next.y].data==GHOST)
     {
-        lives--;
-        pos = initialPos;
-        dir = STAY;
-        board[pos.x][pos.y].data = PACMAN;
         return false;
     }
     else
@@ -97,3 +93,17 @@ int pacman::getFrames()
 {
     return framesSinceMove;
 }
+
+void pacman::strike(cell board[boardSize][boardSize])
+{
+    prev = pos;
+    pos = initialPos;
+
+    board[prev.x][prev.y].data = EMPTY;
+    board[pos.x][pos.y].data = PACMAN;
+
+    lives--;
+    dir = STAY;
+
+}
+

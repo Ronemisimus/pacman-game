@@ -17,12 +17,13 @@ class ghost
     int framesSinceMove;
 public:
     ghost();
-    void moveGhost(cell board[boardSize][boardSize]);
+    bool moveGhost(cell board[boardSize][boardSize]);
     void setDir(Direction dir);
     Position getPos();
     Position getPrevPos();
     void setFrames(int frames);
     int getFrames();
     void getPossiblePos(cell board[boardSize][boardSize], path Possibilities[4]);
+    void strike(cell board[boardSize][boardSize]);
 };
 

@@ -30,7 +30,7 @@ int ghost::getFrames()
     return framesSinceMove;
 }
 
-void ghost::moveGhost(cell board[boardSize][boardSize])
+bool ghost::moveGhost(cell board[boardSize][boardSize])
 {
     path possiblities[4] = {}; 
     getPossiblePos(board, possiblities);
@@ -75,30 +75,49 @@ void ghost::moveGhost(cell board[boardSize][boardSize])
         }
 
         board[prev.x][prev.y].data = EMPTY;
+        bool notHit = board[pos.x][pos.y].data != PACMAN;
         board[pos.x][pos.y].data = GHOST;
+        
+        return notHit;
     }
+
+    return true;
 }
 
 void ghost::getPossiblePos(cell board[boardSize][boardSize], path possibilities[4])
 {
-    if(board[pos.x-1][pos.y].data!=WALL)
+    if(pos.x-1>0 && 
+        board[pos.x-1][pos.y].data!=WALL)
     {
         possibilities[LEFT].way =LEFT;
         possibilities[LEFT].available=true;
     }
-    if(board[pos.x+1][pos.y].data!=WALL)
+    if(pos.x+1<boardSize-1 &&
+        board[pos.x+1][pos.y].data!=WALL)
     {
         possibilities[RIGHT].way =RIGHT;
         possibilities[RIGHT].available=true;
     }
-    if(board[pos.x][pos.y-1].data!=WALL)
+    if(pos.y-1>0 &&
+        board[pos.x][pos.y-1].data!=WALL)
     {
         possibilities[UP].way =UP;
         possibilities[UP].available=true;
     }
-    if(board[pos.x][pos.y+1].data!=WALL)
+    if(pos.y+1<boardSize-1 &&
+        board[pos.x][pos.y+1].data!=WALL)
     {
         possibilities[DOWN].way =DOWN;
         possibilities[DOWN].available=true;
     }
 }
+
+void ghost::strike(cell board[boardSize][boardSize])
+{
+    prev = pos;
+    pos = initialPos;
+
+    board[prev.x][prev.y].data = EMPTY;
+    board[pos.x][pos.y].data = GHOST;
+}
+
