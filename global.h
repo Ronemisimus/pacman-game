@@ -16,6 +16,8 @@
 #define PACMAN_SPEED 2 // represents frames between moves - lower is faster
 #define GHOST_SPEED PACMAN_SPEED*2
 
+#define LINUX
+
 #define CHAR_WALL '#'
 #define CHAR_ENEMY '$'
 #define CHAR_PACMAN '@'

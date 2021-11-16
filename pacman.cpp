@@ -39,10 +39,15 @@ bool pacman::movePacman(cell board[boardSize][boardSize], int& foodLeft)
 
     prev = pos;
     board[prev.x][prev.y].data = EMPTY;
-    if(board[next.x][next.y].data==WALL ||
-        board[next.x][next.y].data==GHOST)
+    if(board[next.x][next.y].data==GHOST)
     {
         return false;
+    }
+    else if(board[next.x][next.y].data==WALL)
+    {
+        setDir(STAY);
+        board[pos.x][pos.y].data = PACMAN;
+        return true;
     }
     else
     {

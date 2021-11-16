@@ -1,7 +1,12 @@
 
 #pragma once
-#include "iofunctions.h"
 #include "global.h"
+#ifdef LINUX
+#include "iofunctions.h"
+#else
+#include <conio.h>
+#include <Windows.h>
+#endif
 #include "ghost.h"
 #include "pacman.h"
 

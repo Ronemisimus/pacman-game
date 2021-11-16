@@ -8,8 +8,6 @@
 #include <sys/ioctl.h>
 #include "global.h"
 
-#define LINUX
-
 using std::cin;
 using std::cout;
 using std::endl;
