@@ -1,17 +1,25 @@
+//in this program, we play the pacman game
+//Ronen Margolin ID: 318999349, Ronit Libenson ID: 313133035
 #include "main.h"
+
 
 int main()
 {
+    srand((unsigned int)time(NULL));
 
+    //present the main menu
     MENU option;
     do{
         option = menu();
         switch (option)
         {
         case START:
+            fh.loadScreen();
             startGame();
             break;
-
+        case LOAD:
+            //
+            break;
         case PRESENT:
             present();
             break;
@@ -29,10 +37,12 @@ int main()
 
 MENU menu()
 {
+    //this function presents the main menu and gets the user's input
     int input;
     MENU option;
     cout << "Pacman:\n" <<
         "1 - start a new game\n" <<
+        "2 - load a specific board file\n" <<
         "8 - present Instructions and keys\n" <<
         "9 - exit" << endl;
     cin >> input;
@@ -40,8 +50,11 @@ MENU menu()
     return  option;
 }
 
+
+
 void present()
 {
+    //this function presents the game rules
     cout << "\nYour goal is to eat all the breadcrumbs , without touching the walls or being eaten by the ghosts.\n" <<
         "You got 3 lives.\n" << 
         "Press: a\\A to move left,\n" << 
@@ -53,9 +66,10 @@ void present()
         "Good luck!\n\n"; 
 }
 
+
 void startGame()
 {
-
+    //this function is in charge of the main game loop
 #ifdef LINUX
     system("clear");
 #else
@@ -67,7 +81,7 @@ void startGame()
     setTerminalInputMode(&saved);
 #endif
 
-    srand(time(NULL));
+   
 
     Game game;
     game.initBoard();
@@ -91,8 +105,21 @@ void startGame()
     }
     else
     {
-        cout << "loser!!!!1\n";
+        cout << "Game Over!!!!\n";
+        
     }
+
+#ifdef LINUX
+    system("");
+#else
+    system("pause");
+#endif
+
+#ifdef LINUX
+    system("clear");
+#else
+    system("cls");
+#endif
 
 #ifdef LINUX
     resetTerminalInputMode(saved);

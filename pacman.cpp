@@ -1,69 +1,59 @@
 
 #include "pacman.h"
 #include "game.h"
-pacman::pacman(): lives(300), initialPos(1,1), dir(STAY), points(0), prev(-1,-1), framesSinceMove(0)
+pacman::pacman(): Creature(CHAR_PACMAN, Position(1,1), Direction::STAY),lives(3), points(0)
 {
-    pos = initialPos;
+
+    pos = initPos;
 }
 
-bool pacman::movePacman(cell board[boardSize][boardSize], int& foodLeft)
-{
-    Position next(0,0);
-    switch (dir)
-    {
-    case RIGHT:
-        next.x = (pos.x + 1)%boardSize;
-        next.y = pos.y;
-        break;
-    case LEFT:
-        next.x = (pos.x - 1)%boardSize;
-        if(next.x<0) next.x = boardSize + next.x;
-        next.y = pos.y;
-        break;
-    case DOWN:
-        next.x = pos.x;
-         next.y = (pos.y+1)%boardSize;
-       break;
-    case UP:
-        next.x = pos.x ;
-        next.y = (pos.y-1)%boardSize;
-        if(next.y<0) next.y = boardSize + next.y;
-        break;
-    case STAY:
-        next.x=pos.x;
-        next.y=pos.y;
-        break;    
-    default:
-        break;
-    }
 
+collisionFlags pacman::movePacman(cell board[boardSize][boardSize], int& foodLeft)
+{
+    collisionFlags cf;
+    //this function is in charge of the packman's move
+    //calculate the next position:
+    Position next = CalculateNext();
     prev = pos;
-    board[prev.x][prev.y].data = EMPTY;
-    if(board[next.x][next.y].data==GHOST)
+    board[prev.x][prev.y].data = gameObjectType::EMPTY;
+   
+    //check for collision:
+    cf.setPacmanGhost(board[next.x][next.y].data == gameObjectType::GHOST);
+    if(cf.getPacmanGhost())
     {
-        return false;
+        return cf;
     }
-    else if(board[next.x][next.y].data==WALL)
+    else if (board[next.x][next.y].data == gameObjectType::WALL)
     {
-        setDir(STAY);
-        board[pos.x][pos.y].data = PACMAN;
-        return true;
+        board[prev.x][prev.y].data = gameObjectType::PACMAN;
+        SetDir(Direction::STAY);
+        next.x = pos.x;
+        next.y = pos.y;
+        return cf;
     }
     else
     {
+       
+        cf.setPacmanFruit(board[next.x][next.y].data==gameObjectType::FRUIT);
+    
+        //move packman:
         pos = next;
-        board[pos.x][pos.y].data = PACMAN;
+        board[pos.x][pos.y].data = gameObjectType::PACMAN;
+        //update food:
         if(board[pos.x][pos.y].food)
         { 
             board[pos.x][pos.y].food = false;
             points++;
             foodLeft--;
         }
-        return true;
+        return cf;
     }
     
 }
-
+void pacman::addFruitPoints(int value)
+{
+    this->points += value;
+}
 int pacman::getLives()
 {
     return lives;
@@ -74,41 +64,17 @@ int pacman::getPoints()
     return points;
 }
 
-Position pacman::getPos()
-{
-    return pos;
-}
-
-Position pacman::getPrevPos()
-{
-    return prev;
-}
-
-void pacman::setDir(Direction dir)
-{
-    this->dir = dir;
-}
-
-void pacman::setFrames(int framesSinceMove)
-{
-    this->framesSinceMove = framesSinceMove;
-}
-
-int pacman::getFrames()
-{
-    return framesSinceMove;
-}
-
 void pacman::strike(cell board[boardSize][boardSize])
 {
+    //this function is in charge of packman losing a life:
     prev = pos;
-    pos = initialPos;
+    pos = initPos;
 
-    board[prev.x][prev.y].data = EMPTY;
-    board[pos.x][pos.y].data = PACMAN;
+    board[prev.x][prev.y].data = gameObjectType::EMPTY;
+    board[pos.x][pos.y].data = gameObjectType::PACMAN;
 
     lives--;
-    dir = STAY;
+    SetDir(Direction::STAY);
 
 }
 

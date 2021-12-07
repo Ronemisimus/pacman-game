@@ -1,28 +1,13 @@
 #pragma once
 #include "global.h"
-#include "iofunctions.h"
+#include "Creature.h"
+#include "collisionFlags.h"
 
-struct path
+class ghost : public Creature
 {
-    Direction way;
-    bool available;
-};
-
-class ghost
-{
-    Position initialPos;
-    Direction dir;
-    Position prev;
-    Position pos;
-    int framesSinceMove;
 public:
     ghost();
-    bool moveGhost(cell board[boardSize][boardSize]);
-    void setDir(Direction dir);
-    Position getPos();
-    Position getPrevPos();
-    void setFrames(int frames);
-    int getFrames();
+    collisionFlags moveGhost(cell board[boardSize][boardSize]);
     void getPossiblePos(cell board[boardSize][boardSize], path Possibilities[4]);
     void strike(cell board[boardSize][boardSize]);
 };

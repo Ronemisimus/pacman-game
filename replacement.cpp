@@ -74,8 +74,6 @@ int _getch()
     int c = 0;
     if(-1!=read(STDIN_FILENO, &c, bytesWaiting))// check an error happand
     {
-        gotoxy(1,boardSize + 4);
-        printf("clicked: %u\n",  c);
         return c;
     }
     else

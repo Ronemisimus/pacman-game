@@ -1,5 +1,15 @@
 #pragma once
-
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+/* #include <conio.h>
+#include <Windows.h> */
+#include "iofunctions.h"
+#include <stdlib.h>
+#define LINUX
+using std::cin;
+using std::cout;
+using std::endl;
 // controls
 #define RIGHT_KEY_op1 100
 #define RIGHT_KEY_op2 68
@@ -15,13 +25,14 @@
 
 #define PACMAN_SPEED 2 // represents frames between moves - lower is faster
 #define GHOST_SPEED PACMAN_SPEED*2
-
-#define LINUX
+#define FRUIT_SPEED GHOST_SPEED*2
+#define GHOST_NUM 2
 
 #define CHAR_WALL '#'
 #define CHAR_ENEMY '$'
 #define CHAR_PACMAN '@'
 #define CHAR_FOOD '*'
+
 
 const int boardSize = 20;
 const int sleepTime = 50;
@@ -33,8 +44,7 @@ struct Position
     Position(int _x, int _y): x(_x), y(_y){}
     Position(): x(0), y(0){}
 };
-
-enum Direction
+enum class Direction
 {
     LEFT,
     RIGHT,
@@ -44,15 +54,25 @@ enum Direction
     NOCHANGE,
     PAUSE
 };
+struct path
+{
+    Direction way;
+    bool available;
+};
 
-enum gameObjectType {
+
+
+enum class gameObjectType {
     WALL,
     GHOST,
     PACMAN, 
-    EMPTY
+    EMPTY,
+    FRUIT
 };
 
 struct cell{
     bool food;
     gameObjectType data;
 };
+
+void gotoxy(short x, short y);
