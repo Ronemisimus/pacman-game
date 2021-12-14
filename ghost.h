@@ -1,14 +1,16 @@
 #pragma once
 #include "global.h"
+#include "BoardGame.h"
 #include "Creature.h"
 #include "collisionFlags.h"
+
 
 class ghost : public Creature
 {
 public:
-    ghost();
-    collisionFlags moveGhost(cell board[boardSize][boardSize]);
-    void getPossiblePos(cell board[boardSize][boardSize], path Possibilities[4]);
-    void strike(cell board[boardSize][boardSize]);
+    ghost(int rowSize,int colSize, Position initPos);
+    collisionFlags moveGhost(BoardGame& board);
+    
+    void strike(BoardGame& board);
 };
 

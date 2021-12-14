@@ -2,27 +2,27 @@
 #include "Creature.h"
 
 
-Position Creature::CalculateNext() {
+Position Creature::CalculateNext(BoardGame& board) {
     Position next(0, 0);
     switch(dir)
     {
     case Direction::RIGHT:
-        next.x = (pos.x + 1) % boardSize;
+        next.x = (pos.x + 1) %board.getColSize();
         next.y = pos.y;
         break;
     case Direction::LEFT:
-        next.x = (pos.x - 1) % boardSize;
-        if (next.x < 0) next.x = boardSize + next.x;
+        next.x = (pos.x - 1) % board.getColSize();
+        if (next.x < 0) next.x = board.getColSize() + next.x;
         next.y = pos.y;
         break;
     case Direction::DOWN:
         next.x = pos.x;
-        next.y = (pos.y + 1) % boardSize;
+        next.y = (pos.y + 1) % board.getRowSize();
         break;
     case Direction::UP:
         next.x = pos.x;
-        next.y = (pos.y - 1) % boardSize;
-        if (next.y < 0) next.y = boardSize + next.y;
+        next.y = (pos.y - 1) % board.getRowSize();
+        if (next.y < 0) next.y = board.getRowSize() + next.y;
         break;
     case Direction::STAY:
         next.x = pos.x;
@@ -66,10 +66,10 @@ void Creature::setChar(const char drawing)
 {
     this->drawing = drawing;
 }
-void Creature::chooseRandomDir(cell board[boardSize][boardSize])
+void Creature::chooseRandomDir(BoardGame& board)
 {
     //there are 4 possibillities for the ghost's next move: up\down\left\right
-    path possiblities[4] = {};
+    paths possiblities[4] = {};
     //get non blocked cells\direction (not walls\tunnels)
     getPossiblePos(board, possiblities);
     //choose an available direction randomly:
@@ -92,62 +92,41 @@ void Creature::chooseRandomDir(cell board[boardSize][boardSize])
     }
 }
 
-void Creature::getPossiblePos(cell board[boardSize][boardSize], path possibilities[4])
+void Creature::getPossiblePos( BoardGame& board, paths possibilities[4])
 {
     //this function returns available directions\cells for the ghost to move to from a specific cell
-    if (pos.x - 1 > 0 &&
-        board[pos.x - 1][pos.y].data != gameObjectType::WALL)
+   
+    if(board.getCellData(pos.x-1 , pos.y)!= gameObjectType::WALL&& 
+        board.getCellData(pos.x - 1, pos.y) != gameObjectType::INVALID)
     {
         possibilities[int(Direction::LEFT)].way = Direction::LEFT;
-        possibilities[int(Direction::LEFT)].available = true;
+        possibilities[int(Direction::LEFT)].available = pos.x>1;
     }
-    if (pos.x + 1 < boardSize - 1 &&
-        board[pos.x + 1][pos.y].data != gameObjectType::WALL)
+
+    if (board.getCellData(pos.x + 1, pos.y) != gameObjectType::WALL &&
+        board.getCellData(pos.x + 1, pos.y) != gameObjectType::INVALID)
     {
         possibilities[int(Direction::RIGHT)].way = Direction::RIGHT;
-        possibilities[int(Direction::RIGHT)].available = true;
+        possibilities[int(Direction::RIGHT)].available = pos.x+1<board.getColSize()-1;
     }
-    if (pos.y - 1 > 0 &&
-        board[pos.x][pos.y - 1].data != gameObjectType::WALL)
+    if (board.getCellData(pos.x , pos.y-1) != gameObjectType::WALL &&
+        board.getCellData(pos.x , pos.y-1) != gameObjectType::INVALID)
     {
         possibilities[int(Direction::UP)].way = Direction::UP;
-        possibilities[int(Direction::UP)].available = true;
+        possibilities[int(Direction::UP)].available = pos.y>1;
     }
-    if (pos.y + 1 < boardSize - 1 &&
-        board[pos.x][pos.y + 1].data != gameObjectType::WALL)
+    if (board.getCellData(pos.x , pos.y+1) != gameObjectType::WALL &&
+        board.getCellData(pos.x , pos.y+1) != gameObjectType::INVALID)
     {
         possibilities[int(Direction::DOWN)].way = Direction::DOWN;
-        possibilities[int(Direction::DOWN)].available = true;
+        possibilities[int(Direction::DOWN)].available = pos.y+1<board.getRowSize()-1;
     }
 }
 
-void Creature::drawPos(int x, int y, cell board[boardSize][boardSize], char drawing)
+void Creature::redrawCreature(BoardGame& board)
 {
-    //this function draws the data for a specific board cell
-    if (x > 0 && y > 0)
-    {
-        if (board[x][y].data != gameObjectType::EMPTY)
-        {
-            gotoxy(3 * (x + 1), y);
-            printf("%3c\n", drawing);
-
-        }
-        else if (board[x][y].food)
-        {
-            gotoxy(3 * (x + 1), y);
-            printf("%3c\n", CHAR_FOOD);
-        }
-        else
-        {
-            gotoxy(3 * (x + 1), y);
-            printf("%3c\n", ' ');
-        }
-    }
-}
-void Creature::redrawCreature(cell board[boardSize][boardSize])
-{
-    drawPos(prev.x, prev.y, board,drawing);
-    drawPos(pos.x, pos.y, board, drawing);
+    BoardGame::drawPos(prev.x, prev.y, &board,drawing);
+    BoardGame::drawPos(pos.x, pos.y, &board, drawing);
 
 }
 

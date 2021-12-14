@@ -5,6 +5,13 @@
 using std::filesystem::current_path;
 using std::filesystem::directory_iterator;
 using std::string;
+#include <iostream>
+#include <fstream>
+#include "BoardGame.h"
+#include <string.h>
+
+
+bool IsLineEmpty(char* line);
 
 class FileHandler
 {
@@ -18,7 +25,8 @@ private:
 public:
 	FileHandler();
 	void getFileList();
-	void loadScreen() ;
+	BoardGame* loadScreen() ;
+	void resetScreensLoaded();
 private:
 	std::filesystem::path* sortedFileList;
 

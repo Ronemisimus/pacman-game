@@ -7,6 +7,10 @@ int main()
 {
     srand((unsigned int)time(NULL));
 
+    BoardGame* board = fh.loadScreen();
+
+    bool win = false;
+
     //present the main menu
     MENU option;
     do{
@@ -14,8 +18,20 @@ int main()
         switch (option)
         {
         case START:
-            fh.loadScreen();
-            startGame();
+            while(board)
+            {
+                win = startGame(board);
+                if(win){
+                    board = fh.loadScreen();
+                }
+                else
+                {
+                    //delete board;
+                    board = nullptr;
+                    fh.resetScreensLoaded();
+                }
+            }
+            fh.resetScreensLoaded();
             break;
         case LOAD:
             //
@@ -67,7 +83,7 @@ void present()
 }
 
 
-void startGame()
+bool startGame(BoardGame *board)
 {
     //this function is in charge of the main game loop
 #ifdef LINUX
@@ -83,9 +99,10 @@ void startGame()
 
    
 
-    Game game;
-    game.initBoard();
-    game.drawBoard();
+    Game game(board);
+   
+    board->drawBoard();
+  
     while(!game.isDone())
     {
         game.updateBoard();
@@ -99,14 +116,13 @@ void startGame()
     system("cls");
 #endif
 
-    if(game.getFoodLeft()==0)
+    if(board->getFoodLeft()==0)
     {
         cout << "victory!!\n";   
     }
     else
     {
         cout << "Game Over!!!!\n";
-        
     }
 
 #ifdef LINUX
@@ -125,4 +141,5 @@ void startGame()
     resetTerminalInputMode(saved);
 #endif
 
+    return board->getFoodLeft()==0;
 }

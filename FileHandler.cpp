@@ -1,27 +1,56 @@
 #include "FileHandler.h"
-#include <iostream>
-#include <fstream>
+
+
 using std::cout;
 using std::filesystem::path;
 using std::ifstream;
-void FileHandler::loadScreen() 
-{
 
+BoardGame* FileHandler::loadScreen() 
+{
+    
     if (screensLoaded < filecount)
     {
-        ifstream ReadScreen(sortedFileList[screensLoaded], std::ios_base::in);
-        while (ReadScreen.good())
-        {
-            char line[1024];
-            ReadScreen.getline(line,1024);
-            cout << line<<"\n";
-        }
+       
+        ifstream ReadScreen(sortedFileList[screensLoaded].generic_string(), std::ios_base::in);
+       
         
-        //load screen
+        if (ReadScreen.is_open())
+        {
+            int BoardRows;
+            int row = 0, col = 0;
+            while (ReadScreen.good())
+            {
+                
+                char line[1024];
+                ReadScreen.getline(line, 1024);
+               
+                int len = strlen(line);
+                row++;
+                if (IsLineEmpty(line)==false)
+                {
+                    BoardRows = row;
+                }
+                col = col > len ? col : len;
+                
+            }
+            BoardGame* res = new BoardGame(BoardRows, col);
+            ReadScreen.seekg(0);
 
-        screensLoaded++;
+            screensLoaded++;
+            res->initBoard(ReadScreen);
+            return res;
+       }
+    
+
     }
+    return nullptr;
 }
+
+void FileHandler::resetScreensLoaded()
+{
+    this->screensLoaded = 0;
+}
+
 FileHandler::FileHandler():filecount(0)
 {
     getFileList();
@@ -60,8 +89,19 @@ void FileHandler::getFileList()
         di++;
     }
     qsort(sortedFileList, filecount, sizeof(path),compar);
-    for (int j = 0; j < filecount; j++)
+  
+}
+
+bool IsLineEmpty(char* line)
+{
+    while (line[0] != '\n' && line[0] != '\r' && line[0]!='\0')
     {
-        cout << sortedFileList[j] << "\n";
+        if (line[0] != ' ' && line[0] != CHAR_LEGEND)
+        {
+            return false;
+        }
+        line++;
+
     }
+    return true;
 }

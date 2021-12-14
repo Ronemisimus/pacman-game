@@ -2,11 +2,17 @@
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
-/* #include <conio.h>
-#include <Windows.h> */
-#include "iofunctions.h"
-#include <stdlib.h>
 #define LINUX
+
+#ifndef LINUX
+#include <conio.h>
+#include <Windows.h> 
+
+#else
+#include "iofunctions.h"
+#endif
+
+#include <stdlib.h>
 using std::cin;
 using std::cout;
 using std::endl;
@@ -32,9 +38,10 @@ using std::endl;
 #define CHAR_ENEMY '$'
 #define CHAR_PACMAN '@'
 #define CHAR_FOOD '*'
+#define CHAR_EMPTY '%'
 
+#define CHAR_LEGEND '&'
 
-const int boardSize = 20;
 const int sleepTime = 50;
 
 struct Position
@@ -54,7 +61,7 @@ enum class Direction
     NOCHANGE,
     PAUSE
 };
-struct path
+struct paths
 {
     Direction way;
     bool available;
@@ -67,7 +74,8 @@ enum class gameObjectType {
     GHOST,
     PACMAN, 
     EMPTY,
-    FRUIT
+    FRUIT,
+    INVALID
 };
 
 struct cell{

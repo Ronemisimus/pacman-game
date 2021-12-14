@@ -1,12 +1,12 @@
 #include "ghost.h"
 
-ghost::ghost(): Creature(CHAR_ENEMY, Position(boardSize - 2, boardSize - 2), Direction::STAY)
+ghost::ghost(int rowSize, int colSize, Position initPos): Creature(CHAR_ENEMY, initPos, Direction::STAY)
 {
     pos = initPos;
 }
 
 
-collisionFlags ghost::moveGhost(cell board[boardSize][boardSize])
+collisionFlags ghost::moveGhost(BoardGame& board)
 {
     collisionFlags cf;
     //function that in charge of the ghosts' movement
@@ -15,24 +15,25 @@ collisionFlags ghost::moveGhost(cell board[boardSize][boardSize])
     
     //move the ghost accordingly:
     prev = pos;
-    pos = CalculateNext();
-        
-    board[prev.x][prev.y].data = gameObjectType::EMPTY;
+    pos = CalculateNext(board);
+    board.setBoardCellData(prev.x,prev.y,gameObjectType::EMPTY);
+   
     //check if the ghost ate packman:
-    cf.setPacmanGhost(board[pos.x][pos.y].data == gameObjectType::PACMAN);
-    cf.setFruitGhost(board[pos.x][pos.y].data == gameObjectType::FRUIT);
-    board[pos.x][pos.y].data = gameObjectType::GHOST;
+ 
+    cf.setPacmanGhost(board.getCellData(pos.x, pos.y) == gameObjectType::PACMAN);
+    cf.setFruitGhost(board.getCellData(pos.x, pos.y) == gameObjectType::FRUIT);
+    board.setBoardCellData(pos.x, pos.y, gameObjectType::GHOST);
+    
     return cf;
 }
 
-void ghost::strike(cell board[boardSize][boardSize])
+void ghost::strike(BoardGame& board)
 {
     //this function handles the case of packman losing a life
     prev = pos;
     pos = initPos;
-
-    board[prev.x][prev.y].data = gameObjectType::EMPTY;
-    board[pos.x][pos.y].data = gameObjectType::GHOST;
-
+    board.setBoardCellData(prev.x, prev.y, gameObjectType::EMPTY);
+    board.setBoardCellData(pos.x, pos.y, gameObjectType::GHOST);
+  
 }
 

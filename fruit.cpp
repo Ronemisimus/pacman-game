@@ -9,18 +9,19 @@ void fruit::chooseBeValue()
 		setChar('0'+value);
 	}
 }
-void fruit::chooseInitPos(cell board[boardSize][boardSize])
+void fruit::chooseInitPos(BoardGame& board)
 {
 	int x, y;
-	x = rand() % (boardSize - 2)+1;
-	y = rand() % (boardSize - 2) + 1;
-	while(board[x][y].data != gameObjectType::EMPTY)
-	{
-		x = rand() % (boardSize - 2) + 1;
-		y = rand() % (boardSize - 2) + 1;
-	}
-	board[x][y].data = gameObjectType::FRUIT;
+	x = rand() % (board.getColSize() - 2)+1;
+	y = rand() % (board.getRowSize() - 2) + 1;
 	
+	while(board.getCellData(x, y) != gameObjectType::EMPTY)
+	{
+		x = rand() % (board.getColSize() - 2) + 1;
+		y = rand() % (board.getRowSize() - 2) + 1;
+	}
+	
+	board.setBoardCellData(x,y, gameObjectType::FRUIT);
 	pos.x = x;
 	pos.y = y;
 }
@@ -29,18 +30,19 @@ void fruit::chooseLifeTime()
 	int fps = 1000 / sleepTime;
 	lifeTime = rand() % (fps * 5) + (5*fps);
 }
-collisionFlags fruit::moveFruit(cell board[boardSize][boardSize])
+collisionFlags fruit::moveFruit(BoardGame& board)
 {
 	collisionFlags cf;
 	Position tmp;
-	tmp=CalculateNext();
+	tmp=CalculateNext(board);
 	prev = pos;
 	pos = tmp;
-	board[pos.x][pos.y].data = gameObjectType::FRUIT;
-	board[prev.x][prev.y].data = gameObjectType::EMPTY;
-		
-		cf.setPacmanFruit(board[tmp.x][tmp.y].data == gameObjectType::PACMAN);
-		cf.setFruitGhost(board[tmp.x][tmp.y].data == gameObjectType::GHOST);
+	board.setBoardCellData(pos.x,pos.y, gameObjectType::FRUIT);
+	board.setBoardCellData(prev.x, prev.y, gameObjectType::EMPTY);
+	
+	
+		cf.setPacmanFruit(board.getCellData(tmp.x, tmp.y) == gameObjectType::PACMAN);
+		cf.setFruitGhost(board.getCellData(tmp.x, tmp.y) == gameObjectType::GHOST);
 	
 	return cf;
 }
@@ -68,11 +70,13 @@ bool fruit::getToDelete() const
 	return toDelete;
 }
 
-void fruit::deleteFromBoard(cell board[boardSize][boardSize]) 
+void fruit::deleteFromBoard(BoardGame &board) 
 {
-	if(board[pos.x][pos.y].data== gameObjectType::FRUIT)
-	board[pos.x][pos.y].data = gameObjectType::EMPTY;
-	Creature::drawPos(pos.x, pos.y, board, ' ');
+	
+	if (board.getCellData(pos.x, pos.y) == gameObjectType::FRUIT)
+		board.setBoardCellData(pos.x,pos.y, gameObjectType::EMPTY);
+	
+	BoardGame::drawPos(pos.x, pos.y, &board, ' ');
 	toDelete = false;
 }
 void fruit:: resetfruit()

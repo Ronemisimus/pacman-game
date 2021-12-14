@@ -1,6 +1,8 @@
 #include "global.h"
 
-/* void gotoxy(short x, short y)
+#ifndef LINUX
+
+void gotoxy(short x, short y)
 {
 	//moves the cursor to x,y position:
 	static HANDLE hConsoleOutput = NULL;
@@ -10,4 +12,6 @@
 	COORD dwCursorPosition = { x, y };
 	cout.flush();
 	SetConsoleCursorPosition(hConsoleOutput, dwCursorPosition);
-} */
+}
+
+#endif

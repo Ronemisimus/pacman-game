@@ -2,30 +2,31 @@
 #pragma once
 
 #include "global.h"
-#include "ghost.h"
+#include "BoardGame.h"
+#include "Creature.h"
 #include "pacman.h"
+#include "ghost.h"
 #include "fruit.h"
 #include "collisionFlags.h"
+#include <vector>
 
-
+using std::vector;
 class Game
 {
 private:
-    cell board[boardSize][boardSize];
-    ghost enemies[GHOST_NUM];
-    int foodLeft;
-    pacman player;
+   
     fruit fruit1;
     bool isPaused;
     bool waitForMove; // after strike pause until player moves
-
+    BoardGame* board;
+    pacman* player;
+	vector <ghost> enemies;
    
 public:
-    Game();
-    void initBoard();
-    void drawBoard();
+    Game(BoardGame* board);
+    
     void redrawBoard();
     void updateBoard();
     bool isDone();
-    int getFoodLeft();
+    
 };

@@ -1,17 +1,20 @@
 #pragma once
 #include "global.h"
+#include "BoardGame.h"
 #include "Creature.h"
 #include "collisionFlags.h"
+
 class pacman : public Creature
 {
 private:
     int lives;
     int points;
 public:
-    pacman();
-    collisionFlags movePacman(cell board[boardSize][boardSize], int& foodLeft);
+    pacman(Position initPos);
+    collisionFlags movePacman(BoardGame &board);
     int getLives();
     int getPoints();
-    void strike(cell board[boardSize][boardSize]);
+    void strike(BoardGame& board);
     void addFruitPoints(int value);
+    
 };

@@ -1,7 +1,9 @@
 #pragma once
 #include "global.h"
+#include "BoardGame.h"
 #include "Creature.h"
 #include "collisionFlags.h"
+
 
 class fruit:public Creature {
 
@@ -12,14 +14,14 @@ class fruit:public Creature {
 public:
 	fruit() :Creature('0',Position(-1,-1),Direction::STAY),exists(false), toDelete(false) {}
 	void chooseBeValue();
-	void chooseInitPos(cell board[boardSize][boardSize]);
+	void chooseInitPos(BoardGame &board);
 	void chooseLifeTime();
 	void decreseLifeTime();
-	void deleteFromBoard(cell board[boardSize][boardSize]);
+	void deleteFromBoard(BoardGame& board);
 	bool getToDelete() const;
 	int getValue()const;
 	bool getExist() const;
-	collisionFlags moveFruit(cell board[boardSize][boardSize]);
+	collisionFlags moveFruit(BoardGame& board);
 	void resetfruit();
 	
 	

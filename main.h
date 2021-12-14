@@ -14,4 +14,4 @@ enum  MENU {
 
 MENU menu();
 void present();
-void startGame();
+bool startGame(BoardGame* board);
