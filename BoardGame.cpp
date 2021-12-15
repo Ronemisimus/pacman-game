@@ -148,11 +148,18 @@ void BoardGame::drawBoard()
 
 BoardGame::BoardGame(int rowSize,int colSize)
 {
-    int  row;
+    int  col;
     board = new cell*[colSize];
-    for (row = 0; row < colSize; row++)
+    for (col = 0; col < colSize; col++)
     {
-        board[row] = new cell[rowSize];
+        board[col] = new cell[rowSize];
+    }
+    for(int i=0;i<colSize;i++)
+    {
+        for(int j=0; j<rowSize;j++)
+        {
+            board[i][j] = {false, gameObjectType::EMPTY};
+        }
     }
     this->rowSize = rowSize;
     this->colSize = colSize;
