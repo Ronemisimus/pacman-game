@@ -2,24 +2,30 @@
 #include "BoardGame.h"
 Game::Game(BoardGame * board):  isPaused(false), waitForMove(true), board(board)
 {
-    // write code to init ghost and pacman from board
-    player = new pacman(board->getPacInitPos());
-    Position* ghostPos = board->getGhostsInitPos();
-   // enemies = new ghost[board->getGhostsNum()](board->getColSize(),board->getRowSize());
-    for (int i = 0; i < board->getGhostsNum(); i++)
+    if(board)
     {
-        enemies.push_back(ghost(board->getRowSize(), board->getColSize(), ghostPos[i]));
+        player = new pacman(board->getPacInitPos());
+        changeBoard(board);
     }
 }
 
-
-
-
+void Game::changeBoard(BoardGame* next)
+{
+    isPaused = false;
+    waitForMove = true;
+    board= next;
+    player->setInitPos(next->getPacInitPos());
+    Position* ghostPos = board->getGhostsInitPos();
+    enemies.clear();
+    for (int i = 0; i < board->getGhostsNum(); i++)
+    {
+        enemies.push_back(ghost(board->getRowSize(), board->getColSize(), ghostPos[i], *player));
+    }
+}
 
 bool Game::isDone()
 {
-   
-    return  player->getLives()==0 || board->getFoodLeft() ==0;
+    return player->getLives()==0 || board->getFoodLeft() ==0;
 }
 
 Direction getNewDir()
@@ -215,5 +221,11 @@ void Game::redrawBoard()
    
     cout << "Points: " << player->getPoints() << endl;
 
+}
+
+void Game::resetStats()
+{
+    player->resetLives();
+    player->resetPoints();
 }
 

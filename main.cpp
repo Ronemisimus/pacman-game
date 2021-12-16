@@ -2,12 +2,13 @@
 //Ronen Margolin ID: 318999349, Ronit Libenson ID: 313133035
 #include "main.h"
 
-
 int main()
 {
     srand((unsigned int)time(NULL));
 
-    BoardGame* board = fh.loadScreen();
+    BoardGame* board = fh.loadNextScreen();
+
+    Game game(board);
 
     bool win = false;
 
@@ -18,23 +19,55 @@ int main()
         switch (option)
         {
         case START:
-            while(board)
+            if(!board)
             {
-                win = startGame(board);
-                if(win){
-                    board = fh.loadScreen();
-                }
-                else
-                {
-                    //delete board;
-                    board = nullptr;
-                    fh.resetScreensLoaded();
-                }
+                cout << "there are no files in the directory.\n" <<
+                "please add them and restart the program\n" <<
+                "the files should end with .screen\n";
+                waitForKeyPress();
             }
-            fh.resetScreensLoaded();
+            else
+            {
+                getDifficultyLevel();
+                while(board)
+                {
+                    win = startGame(board, game);
+                    if(win){
+                        board = fh.loadNextScreen();
+                        if(board)
+                        {
+                            game.changeBoard(board);
+                        }
+                        else
+                        {
+                            endGameMessage(win);
+                        } 
+                    }
+                    else
+                    {
+                        //delete board;
+                        board = nullptr;
+                        endGameMessage(win);
+                    }
+                }
+                fh.resetScreensLoaded();
+                board = fh.loadNextScreen();
+                game.changeBoard(board);
+                game.resetStats();
+            }
             break;
         case LOAD:
-            //
+            board = fh.chooseScreen();
+            if(board)
+            {
+                getDifficultyLevel();
+                game.changeBoard(board);
+                endGameMessage(startGame(board,game));
+            }
+            fh.resetScreensLoaded();
+            board = fh.loadNextScreen();
+            game.changeBoard(board);
+            game.resetStats();
             break;
         case PRESENT:
             present();
@@ -51,8 +84,26 @@ int main()
 
 }
 
+void endGameMessage(bool victory)
+{
+    if(victory)
+    {
+        cout << "victory!!\n";   
+    }
+    else
+    {
+        cout << "Game Over!!!!\n";
+    }
+
+    cout << "press any key to continue to the menu" << '\n';
+
+    waitForKeyPress();
+    clearScreen();
+}
+
 MENU menu()
 {
+    clearScreen();
     //this function presents the main menu and gets the user's input
     int input;
     MENU option;
@@ -62,11 +113,10 @@ MENU menu()
         "8 - present Instructions and keys\n" <<
         "9 - exit" << endl;
     cin >> input;
+    cin.ignore();
     option = (MENU) input;
     return  option;
 }
-
-
 
 void present()
 {
@@ -82,24 +132,44 @@ void present()
         "Good luck!\n\n"; 
 }
 
+void getDifficultyLevel()
+{
+    int level=0;
 
-bool startGame(BoardGame *board)
+    clearScreen();
+
+    while(level<1 || level>3)
+    {
+        cout << "choose the difficulty level: (enter a number from the list)\n" <<
+            "1. Best\n" <<
+            "2. Good\n" <<
+            "3. Novice\n";
+
+        if(!(cin >> level) || level<1 || level>3)
+        {
+            cout << "invalid choice\n";
+            if(!cin.good())
+            {
+                cin.clear();
+                cin.ignore(10000,'\n');
+            }
+        }
+    }
+
+    clearScreen();
+
+    ghost::level = GhostStrategy(level);
+}
+
+bool startGame(BoardGame *board, Game& game)
 {
     //this function is in charge of the main game loop
-#ifdef LINUX
-    system("clear");
-#else
-    system("cls");
-#endif
+    clearScreen();
 
 #ifdef LINUX
     termios saved;
     setTerminalInputMode(&saved);
 #endif
-
-   
-
-    Game game(board);
    
     board->drawBoard();
   
@@ -110,32 +180,7 @@ bool startGame(BoardGame *board)
         Sleep(sleepTime);
     }
 
-    #ifdef LINUX
-    system("clear");
-#else
-    system("cls");
-#endif
-
-    if(board->getFoodLeft()==0)
-    {
-        cout << "victory!!\n";   
-    }
-    else
-    {
-        cout << "Game Over!!!!\n";
-    }
-
-#ifdef LINUX
-    system("");
-#else
-    system("pause");
-#endif
-
-#ifdef LINUX
-    system("clear");
-#else
-    system("cls");
-#endif
+    clearScreen();
 
 #ifdef LINUX
     resetTerminalInputMode(saved);
@@ -143,3 +188,4 @@ bool startGame(BoardGame *board)
 
     return board->getFoodLeft()==0;
 }
+

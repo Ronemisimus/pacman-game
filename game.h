@@ -28,5 +28,7 @@ public:
     void redrawBoard();
     void updateBoard();
     bool isDone();
+    void changeBoard(BoardGame* next);
+    void resetStats();
     
 };

@@ -1,6 +1,8 @@
 #include "ghost.h"
 
-ghost::ghost(int rowSize, int colSize, Position initPos): Creature(CHAR_ENEMY, initPos, Direction::STAY)
+GhostStrategy ghost::level = GhostStrategy::INVALID;
+
+ghost::ghost(int rowSize, int colSize, Position initPos, pacman& player): Creature(CHAR_ENEMY, initPos, Direction::STAY), player(player)
 {
     pos = initPos;
 }
@@ -11,7 +13,9 @@ collisionFlags ghost::moveGhost(BoardGame& board)
     collisionFlags cf;
     //function that in charge of the ghosts' movement
 
-    chooseRandomDir(board);
+    //chooseRandomDir(board);
+
+    SetDir(GhostMoveStrategy::getNextDir(*this, ghost::level, board));
     
     //move the ghost accordingly:
     prev = pos;
@@ -25,6 +29,11 @@ collisionFlags ghost::moveGhost(BoardGame& board)
     board.setBoardCellData(pos.x, pos.y, gameObjectType::GHOST);
     
     return cf;
+}
+
+pacman& ghost::getTarget() const
+{
+    return player; 
 }
 
 void ghost::strike(BoardGame& board)

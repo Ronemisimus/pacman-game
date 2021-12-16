@@ -67,9 +67,16 @@ struct paths
     bool available;
 };
 
+enum class GhostStrategy
+{
+    INVALID,
+    BEST,
+    GOOD,
+    NOVICE
+};
 
-
-enum class gameObjectType {
+enum class gameObjectType 
+{
     WALL,
     GHOST,
     PACMAN, 
@@ -84,3 +91,6 @@ struct cell{
 };
 
 void gotoxy(short x, short y);
+
+void clearScreen();
+void waitForKeyPress();

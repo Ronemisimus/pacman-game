@@ -81,10 +81,12 @@ Position BoardGame::getPacInitPos()
 {
     return this->pacInitPos;
 }
+
 Position* BoardGame::getGhostsInitPos()
 {
     return this->enemyInitPos.data();
 }
+
 int BoardGame::getGhostsNum()
 {
     return numOfGhosts;
@@ -94,6 +96,7 @@ int BoardGame::getFoodLeft()
 {
     return numOfFood;
 }
+
 void BoardGame::setBoardCellData(int x, int y, gameObjectType data)
 {
     board[x][y].data = data;
@@ -169,18 +172,22 @@ BoardGame::BoardGame(int rowSize,int colSize)
     this->pacInitPos = Position(-1,-1);
   
 }
+
 int BoardGame::getRowSize()
 {
     return this->rowSize;
 }
+
 int BoardGame::getColSize()
 {
     return this->colSize;
 }
+
 void BoardGame::updatePosition(int x, int y, cell data)
 {
     board[x][y] = data;
 }
+
 gameObjectType BoardGame::getCellData(int x, int y)
 {
     if (x<0 || x>colSize-1 || y > rowSize-1 || y < 0)
@@ -188,10 +195,12 @@ gameObjectType BoardGame::getCellData(int x, int y)
     else
     return board[x][y].data;
 }
+
 bool BoardGame::getIsThereFood(int x, int y)
 {
     return board[x][y].food;
 }
+
 void BoardGame::setIsThereFood(int x, int y, bool value)
 {
     if (board[x][y].food != value)

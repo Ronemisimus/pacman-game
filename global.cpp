@@ -15,3 +15,21 @@ void gotoxy(short x, short y)
 }
 
 #endif
+
+void clearScreen()
+{
+    #ifdef LINUX
+        system("clear");
+    #else
+        system("cls");
+    #endif
+}
+
+void waitForKeyPress()
+{
+	#ifdef LINUX
+        system("read -N 1");
+    #else
+        system("pause");
+    #endif
+}

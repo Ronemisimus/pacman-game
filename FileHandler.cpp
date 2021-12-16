@@ -1,17 +1,21 @@
 #include "FileHandler.h"
 
-
-using std::cout;
-using std::filesystem::path;
-using std::ifstream;
-
-BoardGame* FileHandler::loadScreen() 
+BoardGame* FileHandler::loadNextScreen() 
 {
+    BoardGame* res = loadScreen(screensLoaded);
+    if(screensLoaded<filecount) screensLoaded++;
     
-    if (screensLoaded < filecount)
+    return res;
+}
+
+BoardGame* FileHandler::loadScreen(size_t screenNum)
+{
+    BoardGame* res = nullptr;
+
+    if (screenNum < filecount)
     {
-       
-        ifstream ReadScreen(sortedFileList[screensLoaded].generic_string(), std::ios_base::in);
+        string filename(sortedFileList[screenNum]);
+        ifstream ReadScreen(filename, std::ios_base::in);
        
         
         if (ReadScreen.is_open())
@@ -33,17 +37,13 @@ BoardGame* FileHandler::loadScreen()
                 col = col > len ? col : len;
                 
             }
-            BoardGame* res = new BoardGame(BoardRows, col);
+            res = new BoardGame(BoardRows, col);
             ReadScreen.seekg(0);
-
-            screensLoaded++;
             res->initBoard(ReadScreen);
-            return res;
        }
-    
-
     }
-    return nullptr;
+
+    return res;
 }
 
 void FileHandler::resetScreensLoaded()
@@ -55,41 +55,32 @@ FileHandler::FileHandler():filecount(0)
 {
     getFileList();
 }
+
 int compar(const void* p1, const void* p2)
 {
-    path* path1 = (path*)p1;
-    path* path2 = (path*)p2;
-    return path1->compare(*path2);
+    string* path1 = (string*)p1;
+    string* path2 = (string*)p2;
+    return strcmp(path1->c_str(),path2->c_str());
 }
 
 void FileHandler::getFileList()
 {
 
     std::filesystem::path dir = current_path();
-   di = directory_iterator(dir);
+    di = directory_iterator(dir);
     int count = 0;
     for (auto& f : directory_iterator(dir))
     {
-        if (f.path().extension().compare(".screen") == 0 && f.path().filename().compare("pacman_") > 0)
+        if (f.path().extension().compare(".screen") == 0)
         {
             count++;
+            sortedFileList.push_back(f.path().filename().generic_string());
         }
     }
     filecount = count;
-   
-    sortedFileList = new path[filecount];
-    for (int i = 0; i < filecount; )
-    {
-        if (di->path().extension().compare(".screen") == 0 && di->path().filename().compare("pacman_") > 0)
-        {
-            sortedFileList[i] = di->path();
-            i++;
-            
-        }
-        di++;
-    }
-    qsort(sortedFileList, filecount, sizeof(path),compar);
   
+    sort(sortedFileList.begin(), sortedFileList.end());
+
 }
 
 bool IsLineEmpty(char* line)
@@ -104,4 +95,55 @@ bool IsLineEmpty(char* line)
 
     }
     return true;
+}
+
+BoardGame* FileHandler::chooseScreen()
+{
+    cout << "enter screen name: ";
+    char filename[1024];
+    cin.getline(filename, 1024);
+
+    BoardGame* res=nullptr;
+
+    bool found = false;
+    size_t file_num = 0;
+
+    for (size_t i = 0; i < filecount && !found; i++)
+    {
+        if(strcmp(sortedFileList[i].c_str(), filename)==0)
+        {
+            found =true;
+            file_num = i;
+        }
+    }
+
+    if(found)
+    {
+        cout << "file found - click any key to play\n";
+        res = loadScreen(file_num);
+    }
+    else
+    {
+        cout << "file not found - click any key to return to the menu\n";
+    }
+
+    #ifdef LINUX
+        system("read -N 1");
+    #else
+        system("pause");
+    #endif
+
+    #ifdef LINUX
+        system("clear");
+    #else
+        system("cls");
+    #endif
+
+    return res;
+    
+}
+
+int FileHandler::getFileCount() const
+{
+    return filecount;
 }

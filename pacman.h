@@ -17,4 +17,6 @@ public:
     void strike(BoardGame& board);
     void addFruitPoints(int value);
     
+    void resetLives();
+    void resetPoints();
 };

@@ -9,7 +9,15 @@ using std::string;
 #include <fstream>
 #include "BoardGame.h"
 #include <string.h>
+#include <vector>
+#include <bits/stdc++.h>
 
+using std::cout;
+using std::cin;
+using std::filesystem::path;
+using std::ifstream;
+using std::vector;
+using std::sort;
 
 bool IsLineEmpty(char* line);
 
@@ -17,20 +25,20 @@ class FileHandler
 {
 	
 private:
-	int filecount;
-    int screensLoaded;
+	size_t filecount;
+    size_t screensLoaded;
 	directory_iterator di;
 	
-
+	BoardGame* loadScreen(size_t screenNum);
 public:
 	FileHandler();
 	void getFileList();
-	BoardGame* loadScreen() ;
+	BoardGame* loadNextScreen();
 	void resetScreensLoaded();
+	BoardGame* chooseScreen();
+	int getFileCount() const;
+
 private:
-	std::filesystem::path* sortedFileList;
-
-
-
+	vector<string> sortedFileList;
 };
 int compar(const void* p1, const void* p2);

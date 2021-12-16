@@ -9,6 +9,7 @@ void fruit::chooseBeValue()
 		setChar('0'+value);
 	}
 }
+
 void fruit::chooseInitPos(BoardGame& board)
 {
 	int x, y;
@@ -25,11 +26,13 @@ void fruit::chooseInitPos(BoardGame& board)
 	pos.x = x;
 	pos.y = y;
 }
+
 void fruit::chooseLifeTime()
 {
 	int fps = 1000 / sleepTime;
 	lifeTime = rand() % (fps * 5) + (5*fps);
 }
+
 collisionFlags fruit::moveFruit(BoardGame& board)
 {
 	collisionFlags cf;
@@ -46,10 +49,12 @@ collisionFlags fruit::moveFruit(BoardGame& board)
 	
 	return cf;
 }
+
 bool fruit::getExist() const
 {
 	return exists;
 }
+
 int fruit::getValue()const
 {
 	return value;
@@ -79,6 +84,7 @@ void fruit::deleteFromBoard(BoardGame &board)
 	BoardGame::drawPos(pos.x, pos.y, &board, ' ');
 	toDelete = false;
 }
+
 void fruit:: resetfruit()
 {
 	toDelete = true;

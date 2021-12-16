@@ -1,8 +1,13 @@
 #pragma once
 #include "game.h"
+#include "ghost.h"
 #include "FileHandler.h"
+#include <iostream>
 
- FileHandler fh;
+using std::cout;
+using std::cin;
+
+FileHandler fh;
 
 
 enum  MENU {
@@ -14,4 +19,7 @@ enum  MENU {
 
 MENU menu();
 void present();
-bool startGame(BoardGame* board);
+bool startGame(BoardGame* board, Game& game);
+void endGameMessage(bool victory);
+void getDifficultyLevel();
+

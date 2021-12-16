@@ -33,6 +33,7 @@ Position Creature::CalculateNext(BoardGame& board) {
     }
     return next;
 }
+
 const Position& Creature::getPos() const
 {
     return pos;
@@ -62,10 +63,12 @@ const Direction& Creature::getDir() const
 {
     return dir;
 }
+
 void Creature::setChar(const char drawing)
 {
     this->drawing = drawing;
 }
+
 void Creature::chooseRandomDir(BoardGame& board)
 {
     //there are 4 possibillities for the ghost's next move: up\down\left\right
@@ -130,3 +133,9 @@ void Creature::redrawCreature(BoardGame& board)
 
 }
 
+void Creature::setInitPos(Position initPos)
+{
+    this->initPos=initPos;
+    this->pos=initPos;
+    this->prev=initPos;
+}

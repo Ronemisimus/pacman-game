@@ -30,6 +30,6 @@ public:
 	void getPossiblePos(BoardGame& board, paths possibilities[4]);
 	static void drawPos(int x, int y, BoardGame* board, char drawing);
 	void redrawCreature(BoardGame& board);
-
+	void setInitPos(Position initPos);
 
 };

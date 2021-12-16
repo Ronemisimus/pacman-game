@@ -61,6 +61,7 @@ void pacman::addFruitPoints(int value)
 {
     this->points += value;
 }
+
 int pacman::getLives()
 {
     return lives;
@@ -83,5 +84,15 @@ void pacman::strike(BoardGame& board)
     lives--;
     SetDir(Direction::STAY);
 
+}
+
+void pacman::resetLives()
+{
+    lives=3;
+}
+
+void pacman::resetPoints()
+{
+    points=0;
 }
 
