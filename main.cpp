@@ -10,7 +10,7 @@ int main()
 
     Game game(board);
 
-    game.calculateSmartMoves();
+    //game.calculateSmartMoves();
 
     bool win = false;
 
