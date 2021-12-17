@@ -1,14 +1,15 @@
 #pragma once
 #include "game.h"
 #include "ghost.h"
+#include "global.h"
 #include "FileHandler.h"
 #include <iostream>
 
-using std::cout;
-using std::cin;
-
 FileHandler fh;
 
+using std::cin;
+using std::cout;
+using std::endl;
 
 enum  MENU {
     START = 1, 

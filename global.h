@@ -13,9 +13,15 @@
 #endif
 
 #include <stdlib.h>
+#include <vector>
+#include <list>
+
+using std::list;
+using std::vector;
 using std::cin;
 using std::cout;
 using std::endl;
+
 // controls
 #define RIGHT_KEY_op1 100
 #define RIGHT_KEY_op2 68

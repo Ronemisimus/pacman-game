@@ -10,6 +10,7 @@ class ghost : public Creature
 {
 private:
     pacman& player;
+    list<Position> smartMoves;
 public:
     static GhostStrategy level;
 
@@ -17,4 +18,6 @@ public:
     collisionFlags moveGhost(BoardGame& board);
     void strike(BoardGame& board);
     pacman& getTarget() const;
+    void addToStartOfSmartList(Position current);
+    void addToEndOfSmartList(Position current);
 };

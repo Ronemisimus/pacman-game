@@ -46,3 +46,12 @@ void ghost::strike(BoardGame& board)
   
 }
 
+void ghost::addToStartOfSmartList(Position current)
+{
+    smartMoves.push_front(current);
+}
+
+void ghost::addToEndOfSmartList(Position current)
+{
+    smartMoves.push_back(current);
+}

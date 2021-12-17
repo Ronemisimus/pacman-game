@@ -10,6 +10,8 @@ int main()
 
     Game game(board);
 
+    game.calculateSmartMoves();
+
     bool win = false;
 
     //present the main menu
@@ -170,6 +172,11 @@ bool startGame(BoardGame *board, Game& game)
     termios saved;
     setTerminalInputMode(&saved);
 #endif
+
+    if(ghost::level!=GhostStrategy::NOVICE)
+    {
+        game.calculateSmartMoves();
+    }
    
     board->drawBoard();
   

@@ -1,5 +1,5 @@
 #include "game.h"
-#include "BoardGame.h"
+
 Game::Game(BoardGame * board):  isPaused(false), waitForMove(true), board(board)
 {
     if(board)
@@ -227,5 +227,19 @@ void Game::resetStats()
 {
     player->resetLives();
     player->resetPoints();
+}
+
+void Game::calculateSmartMoves()
+{
+    GhostMoveStrategy::colSize = board->getColSize();
+    GhostMoveStrategy::rowSize = board->getRowSize();
+
+    for(auto& ghost:enemies)
+    {
+        int** stepsBoard = GhostMoveStrategy::initStepsBoard(ghost, *board);
+        GhostMoveStrategy::fillStepsBoard(stepsBoard, ghost.getPos());
+        GhostMoveStrategy::fillStepsList(ghost, stepsBoard);
+        GhostMoveStrategy::freeStepsBoard(stepsBoard);
+    }
 }
 

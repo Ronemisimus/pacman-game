@@ -6,11 +6,10 @@
 #include "Creature.h"
 #include "pacman.h"
 #include "ghost.h"
+#include "GhostMoveStrategy.h"
 #include "fruit.h"
 #include "collisionFlags.h"
-#include <vector>
 
-using std::vector;
 class Game
 {
 private:
@@ -30,5 +29,6 @@ public:
     bool isDone();
     void changeBoard(BoardGame* next);
     void resetStats();
+    void calculateSmartMoves();
     
 };
