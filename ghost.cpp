@@ -13,8 +13,6 @@ collisionFlags ghost::moveGhost(BoardGame& board)
     collisionFlags cf;
     //function that in charge of the ghosts' movement
 
-    //chooseRandomDir(board);
-
     SetDir(GhostMoveStrategy::getNextDir(*this, ghost::level, board));
     
     //move the ghost accordingly:
@@ -43,7 +41,7 @@ void ghost::strike(BoardGame& board)
     pos = initPos;
     board.setBoardCellData(prev.x, prev.y, gameObjectType::EMPTY);
     board.setBoardCellData(pos.x, pos.y, gameObjectType::GHOST);
-  
+    copyFromInitList();
 }
 
 void ghost::addToStartOfSmartList(Position current)
@@ -54,4 +52,46 @@ void ghost::addToStartOfSmartList(Position current)
 void ghost::addToEndOfSmartList(Position current)
 {
     smartMoves.push_back(current);
+}
+
+Position ghost::removeFromStartOfSmartList()
+{
+    Position res = smartMoves.front();
+    smartMoves.pop_front();
+    return res;
+}
+
+Position ghost::removeFromEndOfSmartList()
+{
+    Position res = smartMoves.back();
+    smartMoves.pop_back();
+    return res;
+}
+
+int ghost::findInList(Position playerPos)
+{
+    int i=0;
+    for(Position& pos:smartMoves)
+    {
+        if(pos.x==playerPos.x &&
+        pos.y==playerPos.y)
+        {
+            return smartMoves.size()-i; 
+        }
+        i++;
+    }
+
+    return -1;
+}
+
+void ghost::copyToInitList()
+{
+    initSmartMoves.clear();
+    initSmartMoves = smartMoves;
+}
+
+void ghost::copyFromInitList()
+{
+    smartMoves.clear();
+    smartMoves=initSmartMoves;
 }

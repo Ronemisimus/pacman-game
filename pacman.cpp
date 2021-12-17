@@ -43,6 +43,7 @@ collisionFlags pacman::movePacman(BoardGame& board)
     
         //move packman:
         pos = next;
+
         board.setBoardCellData(pos.x, pos.y, gameObjectType::PACMAN);
        
         //update food:

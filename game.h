@@ -30,5 +30,6 @@ public:
     void changeBoard(BoardGame* next);
     void resetStats();
     void calculateSmartMoves();
+    void updateGhostsSmatMoveList(Position playerPos);
     
 };

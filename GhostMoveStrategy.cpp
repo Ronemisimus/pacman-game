@@ -23,9 +23,41 @@ Direction GhostMoveStrategy::getNextDir(ghost& ghost, GhostStrategy level, Board
     }
 }
 
+Direction getDirFromPos(Position ghost, Position next)
+{
+    int x = next.x-ghost.x;
+    int y = next.y-ghost.y;
+
+    if(x>0)
+    {
+        return Direction::RIGHT;
+    }
+    if(x<0)
+    {
+        return Direction::LEFT;
+    }
+    if(y<0)
+    {
+        return Direction::UP;
+    }
+    if(y>0)
+    {
+        return Direction::DOWN;
+    }
+
+    return Direction::STAY;
+}
+
 Direction GhostMoveStrategy::bestMove(ghost& ghost, BoardGame& board)
 {
-    return Direction::STAY;
+    Direction res = Direction::STAY;
+
+    Position smartNext=ghost.removeFromStartOfSmartList();
+
+    res = getDirFromPos(ghost.getPos(),smartNext);
+
+    return res;
+
 }
 
 Direction GhostMoveStrategy::goodMove(ghost& ghost, BoardGame& board)

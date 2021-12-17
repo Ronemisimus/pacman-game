@@ -121,6 +121,12 @@ void Game::updateBoard()
         {
             // move pacman and check for lives lost
             cf = player->movePacman(*board);
+
+            if(ghost::level != GhostStrategy::NOVICE)
+            {
+                updateGhostsSmatMoveList(player->getPos());       
+            }
+
             //reset clock
             player->setFrames(0);
         }
@@ -240,6 +246,39 @@ void Game::calculateSmartMoves()
         GhostMoveStrategy::fillStepsBoard(stepsBoard, ghost.getPos());
         GhostMoveStrategy::fillStepsList(ghost, stepsBoard);
         GhostMoveStrategy::freeStepsBoard(stepsBoard);
+        ghost.copyToInitList();
+    }
+}
+
+void Game::updateGhostsSmatMoveList(Position playerPos)
+{
+    for(auto& ghost:enemies)
+    {
+        Position lastSmartMove = ghost.removeFromEndOfSmartList();
+        int stepsCanceled = ghost.findInList(playerPos);
+
+        if(stepsCanceled!=-1)
+        {
+            if(stepsCanceled>1)
+            {
+                stepsCanceled--;
+                while (stepsCanceled>0)
+                {
+                    ghost.removeFromEndOfSmartList();
+                    stepsCanceled--;
+                }
+                
+            }
+        }
+        else
+        {
+            ghost.addToEndOfSmartList(lastSmartMove);
+            if(playerPos.x!=lastSmartMove.x ||
+                playerPos.y!=lastSmartMove.y)
+            {
+                ghost.addToEndOfSmartList(playerPos);
+            }
+        }
     }
 }
 
