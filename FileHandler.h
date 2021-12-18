@@ -25,13 +25,17 @@ class FileHandler
 {
 	
 private:
+	static FileHandler *fh;
 	size_t filecount;
     size_t screensLoaded;
 	directory_iterator di;
 	
 	BoardGame* loadScreen(size_t screenNum);
-public:
 	FileHandler();
+public:
+	~FileHandler();
+	FileHandler(const FileHandler&)=delete;
+	static FileHandler* getInstance();
 	void getFileList();
 	BoardGame* loadNextScreen();
 	void resetScreensLoaded();

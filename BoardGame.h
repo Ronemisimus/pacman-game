@@ -23,6 +23,8 @@ private:
 	Position legend;
 public:
 	BoardGame(int rowSize, int colSize);
+	~BoardGame();
+	BoardGame(const BoardGame&) = delete;
 	void initBoard(ifstream& file);
 	void drawBoard();
 	int getFoodLeft();
@@ -39,6 +41,7 @@ public:
 	gameObjectType getCellData(int x,int y);
 
 	static void drawPos(int x, int y, BoardGame* board, char drawing);
+	static char getCharFromData(gameObjectType data);
 
 };
 

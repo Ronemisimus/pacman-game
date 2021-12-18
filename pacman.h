@@ -11,7 +11,8 @@ private:
     int points;
 public:
     pacman(Position initPos);
-    collisionFlags movePacman(BoardGame &board);
+    virtual ~pacman();
+    virtual collisionFlags moveCreature(BoardGame& board);
     int getLives();
     int getPoints();
     void strike(BoardGame& board);

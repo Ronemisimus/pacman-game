@@ -28,19 +28,19 @@ Direction getDirFromPos(Position ghost, Position next)
     int x = next.x-ghost.x;
     int y = next.y-ghost.y;
 
-    if(x>0)
+    if(x==1)
     {
         return Direction::RIGHT;
     }
-    if(x<0)
+    if(x==-1)
     {
         return Direction::LEFT;
     }
-    if(y<0)
+    if(y==-1)
     {
         return Direction::UP;
     }
-    if(y>0)
+    if(y==1)
     {
         return Direction::DOWN;
     }
@@ -62,7 +62,52 @@ Direction GhostMoveStrategy::bestMove(ghost& ghost, BoardGame& board)
 
 Direction GhostMoveStrategy::goodMove(ghost& ghost, BoardGame& board)
 {
-    return Direction::STAY;
+    if(ghostMoves>=0 && ghostMoves<5)
+    {
+        if(ghostMoves==0)
+        {
+            ghostMoves = 21+rand()%5;
+            ghost.chooseRandomDir(board);
+        }
+        else
+        {
+            ghostMoves--;
+        }
+        Position next = ghost.CalculateNext(board);
+        int toRemove = ghost.findInList(next);
+
+        if(toRemove==-1)
+        {
+            if(next.x!=ghost.getPos().x ||
+                next.y!=ghost.getPos().y)
+            {
+                ghost.addToStartOfSmartList(ghost.getPos());
+            }
+        }
+        else
+        {
+            toRemove = ghost.getSmartMovesSize() - toRemove;
+
+            if(ghost.getSmartMovesSize()!=0)
+            {
+                toRemove++;
+            }
+
+            while (toRemove>0)
+            {
+                ghost.removeFromStartOfSmartList();
+                toRemove--;
+            }
+        }
+
+        return ghost.getDir();
+    }
+    else 
+    {
+        ghostMoves--;
+        return bestMove(ghost, board);
+    }
+
 }
 
 Direction GhostMoveStrategy::noviceMove(ghost& ghost, BoardGame& board)
@@ -153,8 +198,9 @@ void GhostMoveStrategy::fillStepsBoard(int** stepsBoard, Position source)
 
 void GhostMoveStrategy::fillStepsList(ghost& ghost, int** stepsBoard)
 {
+    bool hasMove=true;
     Position current = ghost.getTarget().getPos();
-    while(stepsBoard[current.x][current.y]!=0)
+    while(hasMove && stepsBoard[current.x][current.y]!=0)
     {
         ghost.addToStartOfSmartList(current);
 
@@ -180,7 +226,20 @@ void GhostMoveStrategy::fillStepsList(ghost& ghost, int** stepsBoard)
             min = stepsBoard[current.x][current.y+1];
             minPos = Position(current.x, current.y+1);
         }
+        if(min==stepsBoard[current.x-1][current.y])
+        {
+            hasMove=false;
+        }
         current = minPos;
+    }
+
+    if(current.x!=ghost.getPos().x ||
+        current.y!=ghost.getPos().y)
+    {
+        while(ghost.getSmartMovesSize()>0)
+        {
+            ghost.removeFromStartOfSmartList();
+        }
     }
 }
 
@@ -191,6 +250,21 @@ void GhostMoveStrategy::freeStepsBoard(int** stepsBoard)
         delete [] stepsBoard[i];
     }
     delete [] stepsBoard;
+}
+
+void GhostMoveStrategy::fillUnfilledPlaces(int** stepsBoard)
+{
+    int max = rowSize*colSize+1;
+    for(int i=0;i<colSize;i++)
+    {
+        for(int j=0;j<rowSize;j++)
+        {
+            if(stepsBoard[i][j]==-1)
+            {
+                stepsBoard[i][j]=max;
+            }
+        }
+    }
 }
 
 

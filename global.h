@@ -48,7 +48,7 @@ using std::endl;
 
 #define CHAR_LEGEND '&'
 
-const int sleepTime = 50;
+const int sleepTime = 100;
 
 struct Position
 {

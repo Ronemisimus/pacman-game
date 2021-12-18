@@ -9,6 +9,18 @@ Game::Game(BoardGame * board):  isPaused(false), waitForMove(true), board(board)
     }
 }
 
+Game::~Game()
+{
+    if(player)
+    {
+        delete player;
+    }
+    if(board)
+    {
+        delete board;
+    }
+}
+
 void Game::changeBoard(BoardGame* next)
 {
     isPaused = false;
@@ -80,24 +92,29 @@ void Game::updateBoard()
     {
         
         // advance a clock for every character in the game
-        player->setFrames(player->getFrames() + 1);
-      
-        for (int i = 0; i < board->getGhostsNum(); i++)
+        for(auto& creature: creatures)
         {
-            auto& enemy = enemies[i];
-            enemy.setFrames(enemy.getFrames() + 1);
+            bool advance = true;
+            if(typeid(creature)==typeid(fruit))
+            {
+                advance = ((fruit*)creature)->getExist();
+            }
+            if(advance)
+            {
+                creature->setFrames(creature->getFrames() + 1);
+            }
         }
      
         
         collisionFlags cf;
+
         if (fruit1.getExist())
         {
-            fruit1.setFrames(fruit1.getFrames() + 1);
             if (fruit1.getFrames() == FRUIT_SPEED)
             {
                 fruit1.chooseRandomDir(*board);
                 if (!cf.getPacmanGhost() && !cf.getPacmanFruit() && !cf.getFruitGhost())
-                    cf = cf + fruit1.moveFruit(*board);
+                    cf = cf + fruit1.moveCreature(*board);
                 fruit1.setFrames(0);
 
             }
@@ -120,7 +137,7 @@ void Game::updateBoard()
         if(player->getFrames()==PACMAN_SPEED)
         {
             // move pacman and check for lives lost
-            cf = player->movePacman(*board);
+            cf = player->moveCreature(*board);
 
             if(ghost::level != GhostStrategy::NOVICE)
             {
@@ -138,7 +155,7 @@ void Game::updateBoard()
             {
                 if (!cf.getPacmanGhost())
                     // move ghost and check for lives lost by pacman
-                    cf = cf + enemy.moveGhost(*board);
+                    cf = cf + enemy.moveCreature(*board);
                    
                 //reset clock
                 enemy.setFrames(0);
@@ -175,18 +192,31 @@ void Game::updateBoard()
     Direction dir = getNewDir();
     if(!waitForMove && dir == Direction::PAUSE)
     {
+        int messageX = board->getColSize() / 2;
+        int messageY = board->getRowSize() / 2; 
         //change pause mode
         isPaused = !isPaused;
         //message about pausing the game:
         if (isPaused)
         {
-            gotoxy(board->getColSize() / 2, board->getRowSize());
+            gotoxy(3*(messageX+1), messageY);
             cout << "Game is paused. Click esc to continue!" << '\n';
         }
         else
         {
-            gotoxy(board->getColSize() / 2, board->getRowSize());
+            gotoxy(3*(messageX+1), messageY);
             cout << "                                         " << '\n';
+            
+            int col = messageX;
+            for(int i=0;col+i<board->getColSize()&&i<41;i++)
+            {
+                BoardGame::drawPos(col+i, messageY, board, 
+                                    BoardGame::getCharFromData(
+                                        board->getCellData(col+i, messageY)
+                                        )
+                                    );
+            }
+
         }
         
     }
@@ -203,30 +233,43 @@ void Game::updateBoard()
 
 void Game::redrawBoard()
 {
-    //this function redraws the updated board for every frame
-    if (fruit1.getExist())
+    if (!isPaused)
     {
-        fruit1.redrawCreature(*board);
+        for(auto& creature: creatures)
+        {
+            if(typeid(*creature)==typeid(fruit))
+            {
+                if (fruit1.getExist())
+                {
+                    fruit1.redrawCreature(*board);
+                }
+                if (fruit1.getToDelete())
+                {
+                    fruit1.deleteFromBoard(*board);
+                }
+            }
+            else
+            {
+                creature->redrawCreature(*board);
+            }
+        }
+    
+        //update points\lives count:
+        gotoxy(3*(board->getLegendPos().x+1), board->getLegendPos().y);
+        cout << "Lives: " << player->getLives() << '|';
+    
+        cout << "Points: " << player->getPoints() << endl;
     }
-    if (fruit1.getToDelete())
+}
+
+void Game::fillCreatureVector()
+{
+    creatures.push_back(player);
+    creatures.push_back(&fruit1);
+    for(auto& ghost:enemies)
     {
-        fruit1.deleteFromBoard(*board);
+        creatures.push_back(&ghost);
     }
-   player->redrawCreature(*board);
-
-   for (int i = 0; i < board->getGhostsNum(); i++)
-   {
-
-       auto& enemy = enemies[i];
-       enemy.redrawCreature(*board);
-    }
-   
-    //update points\lives count:
-    gotoxy(board->getLegendPos().x, board->getLegendPos().y);
-    cout << "Lives: " << player->getLives() << '|';
-   
-    cout << "Points: " << player->getPoints() << endl;
-
 }
 
 void Game::resetStats()
@@ -244,6 +287,7 @@ void Game::calculateSmartMoves()
     {
         int** stepsBoard = GhostMoveStrategy::initStepsBoard(ghost, *board);
         GhostMoveStrategy::fillStepsBoard(stepsBoard, ghost.getPos());
+        GhostMoveStrategy::fillUnfilledPlaces(stepsBoard);
         GhostMoveStrategy::fillStepsList(ghost, stepsBoard);
         GhostMoveStrategy::freeStepsBoard(stepsBoard);
         ghost.copyToInitList();
@@ -281,4 +325,3 @@ void Game::updateGhostsSmatMoveList(Position playerPos)
         }
     }
 }
-

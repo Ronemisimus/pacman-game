@@ -16,7 +16,8 @@ public:
     static GhostStrategy level;
 
     ghost(int rowSize,int colSize, Position initPos, pacman& player);
-    collisionFlags moveGhost(BoardGame& board);
+    virtual ~ghost();
+    virtual collisionFlags moveCreature(BoardGame& board);
     void strike(BoardGame& board);
     pacman& getTarget() const;
     void addToStartOfSmartList(Position current);
@@ -26,4 +27,5 @@ public:
     int findInList(Position playerPos);
     void copyToInitList();
     void copyFromInitList();
+    int getSmartMovesSize();
 };

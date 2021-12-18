@@ -23,5 +23,6 @@ public:
     static void fillStepsBoard(int** stepsBoard, Position source);
     static void fillStepsList(ghost& ghost, int** stepsBoard);
     static void freeStepsBoard(int** stepsBoard);
+    static void fillUnfilledPlaces(int** stepsBoard);
 
 };

@@ -1,5 +1,15 @@
 #include "fruit.h"
 
+fruit::fruit(): Creature('0',Position(-1,-1),Direction::STAY),exists(false), toDelete(false) 
+{
+
+}
+
+fruit::~fruit()
+{
+    
+}
+
 void fruit::chooseBeValue()
 {
 	value = rand() % 300;
@@ -33,7 +43,7 @@ void fruit::chooseLifeTime()
 	lifeTime = rand() % (fps * 5) + (5*fps);
 }
 
-collisionFlags fruit::moveFruit(BoardGame& board)
+collisionFlags fruit::moveCreature(BoardGame& board)
 {
 	collisionFlags cf;
 	Position tmp;
@@ -90,3 +100,4 @@ void fruit:: resetfruit()
 	toDelete = true;
 	exists = false;
 }
+

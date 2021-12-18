@@ -20,10 +20,11 @@ private:
     BoardGame* board;
     pacman* player;
 	vector <ghost> enemies;
+    vector <Creature*> creatures;
    
 public:
     Game(BoardGame* board);
-    
+    ~Game();
     void redrawBoard();
     void updateBoard();
     bool isDone();
@@ -31,5 +32,5 @@ public:
     void resetStats();
     void calculateSmartMoves();
     void updateGhostsSmatMoveList(Position playerPos);
-    
+    void fillCreatureVector();
 };

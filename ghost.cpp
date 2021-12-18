@@ -7,8 +7,12 @@ ghost::ghost(int rowSize, int colSize, Position initPos, pacman& player): Creatu
     pos = initPos;
 }
 
+ghost::~ghost()
+{
+    
+}
 
-collisionFlags ghost::moveGhost(BoardGame& board)
+collisionFlags ghost::moveCreature(BoardGame& board)
 {
     collisionFlags cf;
     //function that in charge of the ghosts' movement
@@ -57,14 +61,20 @@ void ghost::addToEndOfSmartList(Position current)
 Position ghost::removeFromStartOfSmartList()
 {
     Position res = smartMoves.front();
-    smartMoves.pop_front();
+    if(smartMoves.size()>0)
+    {
+        smartMoves.pop_front();
+    }
     return res;
 }
 
 Position ghost::removeFromEndOfSmartList()
 {
     Position res = smartMoves.back();
-    smartMoves.pop_back();
+    if(smartMoves.size()>0)
+    {
+        smartMoves.pop_back();
+    }
     return res;
 }
 
@@ -94,4 +104,9 @@ void ghost::copyFromInitList()
 {
     smartMoves.clear();
     smartMoves=initSmartMoves;
+}
+
+int ghost::getSmartMovesSize()
+{
+    return smartMoves.size();
 }

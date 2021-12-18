@@ -6,11 +6,11 @@ int main()
 {
     srand((unsigned int)time(NULL));
 
+    FileHandler& fh = *FileHandler::getInstance();
+
     BoardGame* board = fh.loadNextScreen();
 
     Game game(board);
-
-    //game.calculateSmartMoves();
 
     bool win = false;
 
@@ -20,7 +20,7 @@ int main()
         option = menu();
         switch (option)
         {
-        case START:
+        case MENU::START:
             if(!board)
             {
                 cout << "there are no files in the directory.\n" <<
@@ -35,6 +35,7 @@ int main()
                 {
                     win = startGame(board, game);
                     if(win){
+                        delete board;
                         board = fh.loadNextScreen();
                         if(board)
                         {
@@ -47,7 +48,7 @@ int main()
                     }
                     else
                     {
-                        //delete board;
+                        delete board;
                         board = nullptr;
                         endGameMessage(win);
                     }
@@ -58,7 +59,11 @@ int main()
                 game.resetStats();
             }
             break;
-        case LOAD:
+        case MENU::LOAD:
+            if(board)
+            {
+                delete board;
+            }
             board = fh.chooseScreen();
             if(board)
             {
@@ -67,22 +72,27 @@ int main()
                 endGameMessage(startGame(board,game));
             }
             fh.resetScreensLoaded();
+            if(board)
+            {
+                delete board;
+            }
             board = fh.loadNextScreen();
             game.changeBoard(board);
             game.resetStats();
             break;
-        case PRESENT:
+        case MENU::PRESENT:
             present();
             break;
         
-        case EXIT:
+        case MENU::EXIT:
             cout << "\nbye!!!!!\n\n";
             break;
         default:
             cout << "no such option, try again! :)\n";
             break;
         }
-    }while(option != EXIT);
+    }while(option != MENU::EXIT);
+    fh.~FileHandler();
 
 }
 
@@ -177,6 +187,8 @@ bool startGame(BoardGame *board, Game& game)
     {
         game.calculateSmartMoves();
     }
+
+    game.fillCreatureVector();
    
     board->drawBoard();
   

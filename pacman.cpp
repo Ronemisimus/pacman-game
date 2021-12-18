@@ -3,12 +3,15 @@
 #include "game.h"
 pacman::pacman(Position initPos): Creature(CHAR_PACMAN, initPos, Direction::STAY),lives(3), points(0)
 {
-
     pos = initPos;
 }
 
+pacman::~pacman()
+{
+    
+}
 
-collisionFlags pacman::movePacman(BoardGame& board)
+collisionFlags pacman::moveCreature(BoardGame& board)
 {
     collisionFlags cf;
     //this function is in charge of the packman's move
@@ -58,6 +61,7 @@ collisionFlags pacman::movePacman(BoardGame& board)
     }
     
 }
+
 void pacman::addFruitPoints(int value)
 {
     this->points += value;
@@ -96,4 +100,3 @@ void pacman::resetPoints()
 {
     points=0;
 }
-

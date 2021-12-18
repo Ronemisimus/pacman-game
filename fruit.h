@@ -12,7 +12,8 @@ class fruit:public Creature {
 	int lifeTime;
 	bool toDelete;
 public:
-	fruit() :Creature('0',Position(-1,-1),Direction::STAY),exists(false), toDelete(false) {}
+	fruit();
+	virtual ~fruit();
 	void chooseBeValue();
 	void chooseInitPos(BoardGame &board);
 	void chooseLifeTime();
@@ -21,7 +22,7 @@ public:
 	bool getToDelete() const;
 	int getValue()const;
 	bool getExist() const;
-	collisionFlags moveFruit(BoardGame& board);
+	virtual collisionFlags moveCreature(BoardGame& board);
 	void resetfruit();
 	
 	

@@ -1,6 +1,16 @@
 
 #include "Creature.h"
 
+Creature::Creature(const char drawing, const Position& initPos, const Direction& dir): drawing(drawing), 
+			dir(dir), framesSinceMove(0), prev(initPos), initPos(initPos)
+{
+    
+}
+
+Creature::~Creature()
+{
+    
+}
 
 Position Creature::CalculateNext(BoardGame& board) {
     Position next(0, 0);
@@ -103,7 +113,7 @@ void Creature::getPossiblePos( BoardGame& board, paths possibilities[4])
         board.getCellData(pos.x - 1, pos.y) != gameObjectType::INVALID)
     {
         possibilities[int(Direction::LEFT)].way = Direction::LEFT;
-        possibilities[int(Direction::LEFT)].available = pos.x>1;
+        possibilities[int(Direction::LEFT)].available = pos.x-1>1;
     }
 
     if (board.getCellData(pos.x + 1, pos.y) != gameObjectType::WALL &&
@@ -116,7 +126,7 @@ void Creature::getPossiblePos( BoardGame& board, paths possibilities[4])
         board.getCellData(pos.x , pos.y-1) != gameObjectType::INVALID)
     {
         possibilities[int(Direction::UP)].way = Direction::UP;
-        possibilities[int(Direction::UP)].available = pos.y>1;
+        possibilities[int(Direction::UP)].available = pos.y-1>1;
     }
     if (board.getCellData(pos.x , pos.y+1) != gameObjectType::WALL &&
         board.getCellData(pos.x , pos.y+1) != gameObjectType::INVALID)
@@ -138,4 +148,10 @@ void Creature::setInitPos(Position initPos)
     this->initPos=initPos;
     this->pos=initPos;
     this->prev=initPos;
+}
+
+collisionFlags Creature::moveCreature(BoardGame& board)
+{
+    collisionFlags cf;
+    return cf;
 }

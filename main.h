@@ -5,13 +5,11 @@
 #include "FileHandler.h"
 #include <iostream>
 
-FileHandler fh;
-
 using std::cin;
 using std::cout;
 using std::endl;
 
-enum  MENU {
+enum class MENU {
     START = 1, 
     LOAD = 2,
     PRESENT = 8,

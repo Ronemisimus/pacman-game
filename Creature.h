@@ -1,6 +1,7 @@
 #pragma once
 #include "global.h"
 #include "BoardGame.h"
+#include "collisionFlags.h"
 
 class Creature 
 {
@@ -13,7 +14,8 @@ protected:
 	Position pos;
 	Position initPos;
 public:
-	Creature(const char drawing, const Position& initPos, const Direction& dir): drawing(drawing), dir(dir), framesSinceMove(0), prev(initPos), initPos(initPos){}
+	Creature(const char drawing, const Position& initPos, const Direction& dir);
+	virtual ~Creature();
 	void drawCreature(cell** board);
 	const Position& getPrev() const;
 	const Position& getPos() const;
@@ -31,5 +33,7 @@ public:
 	static void drawPos(int x, int y, BoardGame* board, char drawing);
 	void redrawCreature(BoardGame& board);
 	void setInitPos(Position initPos);
+
+	virtual collisionFlags moveCreature(BoardGame& board);
 
 };

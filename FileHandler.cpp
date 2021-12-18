@@ -1,11 +1,51 @@
 #include "FileHandler.h"
 
+FileHandler* FileHandler::fh = nullptr;
+
+FileHandler::FileHandler():filecount(0)
+{
+    getFileList();
+}
+
+FileHandler::~FileHandler()
+{
+    
+}
+
 BoardGame* FileHandler::loadNextScreen() 
 {
     BoardGame* res = loadScreen(screensLoaded);
     if(screensLoaded<filecount) screensLoaded++;
     
     return res;
+}
+
+int lineLen(char line[1024])
+{
+    int linelen = strlen(line);
+    char* legend = strchr(line, CHAR_LEGEND);
+
+    if(line[linelen-1]=='\r')
+    {
+        linelen--;
+    }
+
+    if(legend)
+    {
+        int legendlen = strlen(legend);
+
+        if(legend[legendlen-1]=='\r')
+        {
+            legendlen--;
+        }
+
+        if(legendlen<20)
+        {
+            linelen+=(20-legendlen);
+        }
+    }
+
+    return linelen;
 }
 
 BoardGame* FileHandler::loadScreen(size_t screenNum)
@@ -22,21 +62,20 @@ BoardGame* FileHandler::loadScreen(size_t screenNum)
         {
             int BoardRows;
             int row = 0, col = 0;
+
+            char line[1024];
+            ReadScreen.getline(line, 1024);
+            row++;
+            col = lineLen(line);
+
             while (ReadScreen.good())
             {
-                
-                char line[1024];
                 ReadScreen.getline(line, 1024);
-               
-                int len = strlen(line);
                 row++;
-                if (IsLineEmpty(line)==false)
-                {
-                    BoardRows = row;
-                }
-                col = col > len ? col : len;
-                
             }
+
+            BoardRows = row;
+
             res = new BoardGame(BoardRows, col);
             ReadScreen.seekg(0);
             res->initBoard(ReadScreen);
@@ -49,11 +88,6 @@ BoardGame* FileHandler::loadScreen(size_t screenNum)
 void FileHandler::resetScreensLoaded()
 {
     this->screensLoaded = 0;
-}
-
-FileHandler::FileHandler():filecount(0)
-{
-    getFileList();
 }
 
 int compar(const void* p1, const void* p2)
@@ -147,3 +181,13 @@ int FileHandler::getFileCount() const
 {
     return filecount;
 }
+
+FileHandler* FileHandler::getInstance()
+{
+    if(!fh)
+    {
+        fh = new FileHandler();
+    }
+    return fh;
+}
+

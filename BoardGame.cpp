@@ -1,23 +1,65 @@
 #include "BoardGame.h"
 
+BoardGame::BoardGame(int rowSize,int colSize)
+{
+    int  col;
+    board = new cell*[colSize];
+    for (col = 0; col < colSize; col++)
+    {
+        board[col] = new cell[rowSize];
+    }
+    for(int i=0;i<colSize;i++)
+    {
+        for(int j=0; j<rowSize;j++)
+        {
+            board[i][j] = {false, gameObjectType::EMPTY};
+        }
+    }
+    this->rowSize = rowSize;
+    this->colSize = colSize;
+    this->numOfGhosts = 0;
+    this->numOfFood = 0;
+    this->legend = Position(-1,-1);
+    this->pacInitPos = Position(-1,-1);
+}
+
+BoardGame::~BoardGame()
+{
+    for(int i=0;i<colSize;i++)
+    {
+        delete [] board[i];
+    }
+    delete [] board;
+}
+
+
 void BoardGame::initBoard(ifstream& file)
 {
     int row, col;
+    bool lineEnded = false;
     char data;
-    for (row = 0; row < rowSize;)
+    for (row = 0; row < rowSize; row++)
     {
+        lineEnded = false;
         for (col = 0; col < colSize; col++)
         {
-            data= file.get();
+            if(!lineEnded)
+            {
+                data=file.get();
+            }
             if(data=='\r')
             {
                 data=file.get();
             }
             if(data=='\n')
             {
-                row++;
-                col = 0;
-                data = file.get();
+                lineEnded=true;
+                data = CHAR_EMPTY;
+            }
+            if(!lineEnded && !file.good())
+            {
+                data=CHAR_EMPTY;
+                lineEnded=true;
             }
             switch (data) {
             case CHAR_WALL:
@@ -48,13 +90,19 @@ void BoardGame::initBoard(ifstream& file)
                 board[col][row].data = gameObjectType::EMPTY;
                 board[col][row].food = false;
                 break;
-               
             }
           
         }
+        if(!lineEnded)
+        {
+            while(data!='\n' && file.good())
+            {
+                data = file.get();
+            }
+        }
     }
     
-    while (file.good())
+    /* while (file.good())
     {
         char data = file.get();
         col++;
@@ -73,7 +121,7 @@ void BoardGame::initBoard(ifstream& file)
             legend = Position(col, row);
         }
 
-    }
+    } */
 
 }
 
@@ -102,6 +150,28 @@ void BoardGame::setBoardCellData(int x, int y, gameObjectType data)
     board[x][y].data = data;
 }
 
+char BoardGame::getCharFromData(gameObjectType data)
+{
+    switch (data)
+    {
+    case gameObjectType::WALL:
+        return CHAR_WALL;
+        break;
+    case gameObjectType::GHOST:
+        return CHAR_ENEMY;
+        break;
+    case gameObjectType::PACMAN:
+        return CHAR_PACMAN;
+        break;
+    case gameObjectType::EMPTY:
+        return ' ';
+    default:
+        return 0;
+        break;
+
+    }
+}
+
 void BoardGame::drawBoard()
 {
     //this function draws the whole board at the beginning of the game
@@ -110,67 +180,11 @@ void BoardGame::drawBoard()
     {
         for (int j = 0; j < rowSize; j++)
         {
-            switch (board[i][j].data)
-            {
-            case gameObjectType::WALL:
-                gotoxy(3 * (i + 1), j);
-                printf("%3c\n", CHAR_WALL);
-
-                break;
-            case gameObjectType::GHOST:
-                BoardGame::drawPos(i, j, this, CHAR_ENEMY);
-                break;
-            case gameObjectType::PACMAN:
-                BoardGame::drawPos(i, j, this, CHAR_PACMAN);
-                break;
-            case gameObjectType::EMPTY:
-                if (board[i][j].food)
-                {
-                    gotoxy(3 * (i + 1), j);
-                    printf("%3c\n", CHAR_FOOD);
-                }
-                else
-                {
-                    gotoxy(3 * (i + 1), j);
-                    printf("%3c\n", ' ');
-                }
-            default:
-                break;
-
-            }
-
+            char drawing = getCharFromData(getCellData(i,j));
+            drawPos(i,j,this,drawing);
         }
 
     }
-    //draw life and points status:
-    /*gotoxy(0, boardSize + 3);
-    cout << "Lives: " << player.getLives() << '\n';
-    cout << "Points: " << player.getPoints() << endl;*/
-
-}
-
-BoardGame::BoardGame(int rowSize,int colSize)
-{
-    int  col;
-    board = new cell*[colSize];
-    for (col = 0; col < colSize; col++)
-    {
-        board[col] = new cell[rowSize];
-    }
-    for(int i=0;i<colSize;i++)
-    {
-        for(int j=0; j<rowSize;j++)
-        {
-            board[i][j] = {false, gameObjectType::EMPTY};
-        }
-    }
-    this->rowSize = rowSize;
-    this->colSize = colSize;
-    this->numOfGhosts = 0;
-    this->numOfFood = 0;
-    this->legend = Position(-1,-1);
-    this->pacInitPos = Position(-1,-1);
-  
 }
 
 int BoardGame::getRowSize()
@@ -244,4 +258,3 @@ Position BoardGame::getLegendPos()
 {
     return legend;
 }
-
