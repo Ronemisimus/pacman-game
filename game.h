@@ -1,6 +1,6 @@
 
 #pragma once
-
+#include <fstream>
 #include "global.h"
 #include "BoardGame.h"
 #include "Creature.h"
@@ -10,8 +10,11 @@
 #include "fruit.h"
 #include "collisionFlags.h"
 
+using std::ofstream;
+using std::string;
+
 class Game
-{
+{//class to manage the game's status
 private:
    
     fruit fruit1;
@@ -21,16 +24,24 @@ private:
     pacman* player;
 	vector <ghost> enemies;
     vector <Creature*> creatures;
+    vector<string> creatureSave;
+    ofstream* saveFile;
    
 public:
     Game(BoardGame* board);
     ~Game();
     void redrawBoard();
-    void updateBoard();
+    void updateBoard(size_t frames);
     bool isDone();
     void changeBoard(BoardGame* next);
     void resetStats();
     void calculateSmartMoves();
     void updateGhostsSmatMoveList(Position playerPos);
     void fillCreatureVector();
+    void setSaveFile(ofstream* saveFile);
+    void save();
+    void resetCreatureSave();
+    void compressStrings();
+    string compressFruit(string moves);
+    string compress(string dirsOnly);
 };

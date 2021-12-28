@@ -2,20 +2,93 @@
 //Ronen Margolin ID: 318999349, Ronit Libenson ID: 313133035
 #include "main.h"
 
-int main()
+int main(int argc, char** argv)
 {
     srand((unsigned int)time(NULL));
 
+    if(argc==1)
+    {
+        run(false);
+    }
+    else
+    {
+        bool goodParameters = true;
+        if(strcmp(argv[1],"-save")==0)
+        {
+            run(true);
+        }
+        else if(strcmp(argv[1],"-load")==0)
+        { 
+            bool silent=false;
+            if(argc==3)
+            {
+                if(strcmp(argv[2],"-silent")==0)
+                {
+                    silent=true;
+                }
+                else
+                {
+                    goodParameters = false;
+                }
+            }
+            else if(argc==2)
+            {
+                silent=false;
+            }
+            else
+            {
+                goodParameters=false;
+            }
+            if(goodParameters)
+            {
+                try
+                {
+                    load(silent);
+                }
+                catch(const std::exception& e)
+                {
+                    goodParameters=false;
+                }
+                
+            }
+        }
+        else
+        {
+            goodParameters=false;
+        }
+
+        if(!goodParameters)
+        {
+            cout << "invalid parameters or missing/incomplete files.\n" << 
+            "Usage: pacman.exe -save|-load [-silent]\n";
+        }
+    }
+}
+
+void load(bool silent)
+{
     FileHandler& fh = *FileHandler::getInstance();
+
+    BoardGame* board = fh.loadNextScreen();
+
+    
+
+}
+
+void run(bool save)
+{
+    FileHandler& fh = *FileHandler::getInstance();
+
 
     BoardGame* board = fh.loadNextScreen();
 
     Game game(board);
 
     bool win = false;
+    size_t file_num;
 
     //present the main menu
-    MENU option;
+    MENU option= MENU::INVALID;
     do{
         option = menu();
         switch (option)
@@ -33,6 +106,11 @@ int main()
                 getDifficultyLevel();
                 while(board)
                 {
+                    if(save)
+                    {
+                        ofstream* saveFile = fh.getSaveFile(fh.getScreensLoaded()-1);
+                        game.setSaveFile(saveFile);
+                    }
                     win = startGame(board, game);
                     if(win){
                         delete board;
@@ -55,7 +133,9 @@ int main()
                 }
                 fh.resetScreensLoaded();
                 board = fh.loadNextScreen();
-                game.changeBoard(board);
+               
+                    game.changeBoard(board);
+               
                 game.resetStats();
             }
             break;
@@ -64,9 +144,15 @@ int main()
             {
                 delete board;
             }
-            board = fh.chooseScreen();
+            file_num=0;
+            board = fh.chooseScreen(file_num);
             if(board)
             {
+                if(save)
+                {
+                    ofstream* saveFile = fh.getSaveFile(file_num);
+                    game.setSaveFile(saveFile);
+                }
                 getDifficultyLevel();
                 game.changeBoard(board);
                 endGameMessage(startGame(board,game));
@@ -92,8 +178,6 @@ int main()
             break;
         }
     }while(option != MENU::EXIT);
-    fh.~FileHandler();
-
 }
 
 void endGameMessage(bool victory)
@@ -192,12 +276,18 @@ bool startGame(BoardGame *board, Game& game)
    
     board->drawBoard();
   
+    size_t frame = 0;
+
     while(!game.isDone())
     {
-        game.updateBoard();
+        game.updateBoard(frame);
         game.redrawBoard();
+        frame++;
         Sleep(sleepTime);
     }
+
+    game.save();
+    game.resetCreatureSave();
 
     clearScreen();
 

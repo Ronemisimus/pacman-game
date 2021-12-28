@@ -1,7 +1,7 @@
 #include "BoardGame.h"
 
 BoardGame::BoardGame(int rowSize,int colSize)
-{
+{//ctor to allocate the board's data
     int  col;
     board = new cell*[colSize];
     for (col = 0; col < colSize; col++)
@@ -24,7 +24,7 @@ BoardGame::BoardGame(int rowSize,int colSize)
 }
 
 BoardGame::~BoardGame()
-{
+{//dtor to free the board
     for(int i=0;i<colSize;i++)
     {
         delete [] board[i];
@@ -34,19 +34,20 @@ BoardGame::~BoardGame()
 
 
 void BoardGame::initBoard(ifstream& file)
-{
+{//function to initiallize the board according to the file
     int row, col;
     bool lineEnded = false;
-    char data;
+    char data=0;
     for (row = 0; row < rowSize; row++)
     {
         lineEnded = false;
         for (col = 0; col < colSize; col++)
         {
             if(!lineEnded)
-            {
+            {//read a character (only if exists in the line)
                 data=file.get();
             }
+            //check for line's end:
             if(data=='\r')
             {
                 data=file.get();
@@ -56,11 +57,13 @@ void BoardGame::initBoard(ifstream& file)
                 lineEnded=true;
                 data = CHAR_EMPTY;
             }
+            
             if(!lineEnded && !file.good())
-            {
+            {//fill remaining cells after line\file end
                 data=CHAR_EMPTY;
                 lineEnded=true;
             }
+            //fill the board according to its data fields:
             switch (data) {
             case CHAR_WALL:
                 board[col][row].data = gameObjectType::WALL;
@@ -69,6 +72,7 @@ void BoardGame::initBoard(ifstream& file)
             case CHAR_ENEMY:
                 board[col][row].data = gameObjectType::GHOST;
                 board[col][row].food = false;
+                //count the ghosts and add their position to a vector
                 numOfGhosts++;
                 enemyInitPos.push_back(Position(col,row));
                 break;
@@ -94,7 +98,7 @@ void BoardGame::initBoard(ifstream& file)
           
         }
         if(!lineEnded)
-        {
+        {//ignore the end of lines longer than the first line
             while(data!='\n' && file.good())
             {
                 data = file.get();
@@ -102,26 +106,7 @@ void BoardGame::initBoard(ifstream& file)
         }
     }
     
-    /* while (file.good())
-    {
-        char data = file.get();
-        col++;
-        if (data == '\r') {
-            data = file.get();
-        }
-        if (data == '\n')
-        {
-            row++;
-            col = 0;
-            data = file.get();
-        }
-
-        if (data == CHAR_LEGEND)
-        {
-            legend = Position(col, row);
-        }
-
-    } */
+    
 
 }
 

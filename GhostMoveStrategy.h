@@ -5,7 +5,7 @@
 #include "BoardGame.h"
 
 class GhostMoveStrategy
-{
+{//this class handles the ghost's difficulty levels
 private:
     
 public:

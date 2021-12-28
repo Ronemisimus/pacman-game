@@ -1,6 +1,6 @@
 #include "game.h"
 
-Game::Game(BoardGame * board):  isPaused(false), waitForMove(true), board(board)
+Game::Game(BoardGame * board):  isPaused(false), waitForMove(true), board(board),player(nullptr), saveFile(nullptr)
 {
     if(board)
     {
@@ -22,7 +22,7 @@ Game::~Game()
 }
 
 void Game::changeBoard(BoardGame* next)
-{
+{//when loading a new screen
     isPaused = false;
     waitForMove = true;
     board= next;
@@ -84,7 +84,7 @@ Direction getNewDir()
     }
 }
 
-void Game::updateBoard()
+void Game::updateBoard(size_t frames)
 {
     //this function updates the board for every frame
     // update only if not paused
@@ -107,7 +107,7 @@ void Game::updateBoard()
      
         
         collisionFlags cf;
-
+        //handles fruit logic
         if (fruit1.getExist())
         {
             if (fruit1.getFrames() == FRUIT_SPEED)
@@ -206,7 +206,7 @@ void Game::updateBoard()
         {
             gotoxy(3*(messageX+1), messageY);
             cout << "                                         " << '\n';
-            
+            //redraw positions that the pause message deletes
             int col = messageX;
             for(int i=0;col+i<board->getColSize()&&i<41;i++)
             {
@@ -219,6 +219,14 @@ void Game::updateBoard()
 
         }
         
+    }
+
+    if(saveFile && !waitForMove && !isPaused)
+    {
+        for(size_t i=0;i<creatures.size();i++)
+        {
+            creatureSave[i]+=creatures[i]->addToSave(frames);
+        }        
     }
 
     if(dir!= Direction::NOCHANGE && dir!= Direction::PAUSE)
@@ -263,12 +271,16 @@ void Game::redrawBoard()
 }
 
 void Game::fillCreatureVector()
-{
+{//creates a vector of all creatures to allow mutual actions for everyone
+    creatures.clear();
     creatures.push_back(player);
+    creatureSave.push_back("");
     creatures.push_back(&fruit1);
+    creatureSave.push_back("");
     for(auto& ghost:enemies)
     {
         creatures.push_back(&ghost);
+        creatureSave.push_back("");
     }
 }
 
@@ -279,28 +291,34 @@ void Game::resetStats()
 }
 
 void Game::calculateSmartMoves()
-{
+{//at the initiallization of each board, we calculate and save the best path fromm each ghost to pacman
     GhostMoveStrategy::colSize = board->getColSize();
     GhostMoveStrategy::rowSize = board->getRowSize();
 
     for(auto& ghost:enemies)
     {
+        //creates a parallel board to count steps:
         int** stepsBoard = GhostMoveStrategy::initStepsBoard(ghost, *board);
+        //fills the parallel board with step count for every location the ghost can reach:
+        //step count - the minimal amount of steps the  ghost needs to reach a certain cell
         GhostMoveStrategy::fillStepsBoard(stepsBoard, ghost.getPos());
+        //fills places with other indexex that the ghost cannot reach(shouldn't be possible)
         GhostMoveStrategy::fillUnfilledPlaces(stepsBoard);
+        //backtracking from pacman's position to the ghost
         GhostMoveStrategy::fillStepsList(ghost, stepsBoard);
+
         GhostMoveStrategy::freeStepsBoard(stepsBoard);
-        ghost.copyToInitList();
+        ghost.copyToInitList();//save a copy of the calculated paths
     }
 }
 
 void Game::updateGhostsSmatMoveList(Position playerPos)
-{
+{//keep the smartMoves list connected between pacman and (each) ghost
     for(auto& ghost:enemies)
     {
         Position lastSmartMove = ghost.removeFromEndOfSmartList();
         int stepsCanceled = ghost.findInList(playerPos);
-
+        //prevents ghosts to move in loops
         if(stepsCanceled!=-1)
         {
             if(stepsCanceled>1)
@@ -323,5 +341,120 @@ void Game::updateGhostsSmatMoveList(Position playerPos)
                 ghost.addToEndOfSmartList(playerPos);
             }
         }
+    }
+}
+
+void Game::setSaveFile(ofstream* saveFile)
+{
+    this->saveFile=saveFile;
+}
+
+void Game::save()
+{
+    compressStrings();
+    ofstream& f = *saveFile;
+    int ghost_num=1;
+    for(size_t index=0;index<creatures.size();index++)
+    {
+        auto& creature = *(creatures[index]);
+        if(typeid(creature)==typeid(pacman))
+        {
+            f << CHAR_PACMAN << '\n';
+        }
+        else if(typeid(creature)==typeid(fruit))
+        {
+            f << '\n' << 'f';
+            
+        }
+        else
+        {
+            f << '\n' << CHAR_ENEMY << ghost_num << '\n';
+            ghost_num++;
+        }
+        f << creatureSave[index];
+        f << '\n';
+    }
+
+    f.close();
+}
+
+void Game::resetCreatureSave()
+{
+    creatureSave.clear();
+}
+
+string Game::compress(string dirsOnly)
+{
+    string res="";
+    int duplicates=0;
+    char prev=' ';
+    for(auto& current:dirsOnly)
+    {
+        if(prev==current)
+        {
+            duplicates++;
+        }
+        else
+        {
+            if(prev!=' ')
+            {
+                res+=prev;
+                res+=std::to_string(duplicates);
+            }
+            duplicates=1;
+        }
+        prev = current;
+    }
+    if(duplicates!=0)
+    {
+        res+=prev;
+        res+=std::to_string(duplicates);
+    }
+
+    return res;
+}
+
+string Game::compressFruit(string moves)
+{
+    string res = "";
+    string dirs="";
+    string check = "UDSLR";
+    for(char& current:moves)
+    {
+        if(check.find(current)!=std::string::npos)
+        {
+            dirs+=current;
+        }
+        else
+        {
+            dirs=compress(dirs);
+            res+=dirs;
+            res+=current;
+            dirs="";
+        }
+    }
+    if(dirs.size()!=0)
+    {
+        dirs=compress(dirs);
+        res+=dirs;
+    }
+    return res;
+}
+
+void Game::compressStrings()
+{
+    for(size_t index=0;index<creatures.size();index++)
+    {
+        string finalResult = "";
+        auto& creature = *(creatures[index]);
+        if(typeid(creature)==typeid(fruit))
+        {
+            finalResult = compressFruit(creatureSave[index]);
+        }
+        else
+        {
+            finalResult = compress(creatureSave[index]);
+        }
+        creatureSave[index] = finalResult; 
     }
 }

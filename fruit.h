@@ -4,9 +4,8 @@
 #include "Creature.h"
 #include "collisionFlags.h"
 
-
 class fruit:public Creature {
-
+//class to handle the fruit's life cycle 
 	bool exists;
 	int value;
 	int lifeTime;
@@ -22,9 +21,10 @@ public:
 	bool getToDelete() const;
 	int getValue()const;
 	bool getExist() const;
-	virtual collisionFlags moveCreature(BoardGame& board);
 	void resetfruit();
 	
+	virtual collisionFlags moveCreature(BoardGame& board);
+	virtual string addToSave(size_t frames);
 	
 
 };

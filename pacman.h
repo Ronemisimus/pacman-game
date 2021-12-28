@@ -5,7 +5,7 @@
 #include "collisionFlags.h"
 
 class pacman : public Creature
-{
+{//handles the pacman's data
 private:
     int lives;
     int points;
@@ -13,10 +13,11 @@ public:
     pacman(Position initPos);
     virtual ~pacman();
     virtual collisionFlags moveCreature(BoardGame& board);
+    virtual string addToSave(size_t frames);
     int getLives();
     int getPoints();
     void strike(BoardGame& board);
-    void addFruitPoints(int value);
+    void addFruitPoints(size_t value);
     
     void resetLives();
     void resetPoints();

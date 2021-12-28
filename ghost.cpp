@@ -60,9 +60,10 @@ void ghost::addToEndOfSmartList(Position current)
 
 Position ghost::removeFromStartOfSmartList()
 {
-    Position res = smartMoves.front();
+    Position res = Position(0,0);
     if(smartMoves.size()>0)
     {
+        res=smartMoves.front();
         smartMoves.pop_front();
     }
     return res;
@@ -70,9 +71,10 @@ Position ghost::removeFromStartOfSmartList()
 
 Position ghost::removeFromEndOfSmartList()
 {
-    Position res = smartMoves.back();
+    Position res = Position(0, 0);
     if(smartMoves.size()>0)
     {
+        res = smartMoves.back();
         smartMoves.pop_back();
     }
     return res;
@@ -110,3 +112,21 @@ int ghost::getSmartMovesSize()
 {
     return smartMoves.size();
 }
+
+string ghost::addToSave(size_t frames)
+{
+    string res = "";
+
+    if(getFrames()==0)
+    {
+        res += convertDirToLetter(getDir());
+    }
+    return res;
+
+}
+
+void ghost::emptyStepsList()
+{
+    smartMoves.clear();
+}
+

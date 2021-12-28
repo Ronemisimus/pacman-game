@@ -3,8 +3,10 @@
 #include "BoardGame.h"
 #include "collisionFlags.h"
 
+using std::string;
+
 class Creature 
-{
+{//handle basic functionallities for all the creatures in the game
 private:
     char drawing;
 	Direction dir;
@@ -30,10 +32,13 @@ public:
 	void collision();
 	void chooseRandomDir(BoardGame& board);
 	void getPossiblePos(BoardGame& board, paths possibilities[4]);
-	static void drawPos(int x, int y, BoardGame* board, char drawing);
 	void redrawCreature(BoardGame& board);
 	void setInitPos(Position initPos);
-
+	
+	static void drawPos(int x, int y, BoardGame* board, char drawing);
+	static char convertDirToLetter(Direction dir);
+	
+	virtual string addToSave(size_t frames);
 	virtual collisionFlags moveCreature(BoardGame& board);
 
 };

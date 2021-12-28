@@ -7,7 +7,7 @@
 
 
 class ghost : public Creature
-{
+{//class to handle the ghost's data
 private:
     pacman& player;
     list<Position> smartMoves;
@@ -17,15 +17,19 @@ public:
 
     ghost(int rowSize,int colSize, Position initPos, pacman& player);
     virtual ~ghost();
-    virtual collisionFlags moveCreature(BoardGame& board);
     void strike(BoardGame& board);
     pacman& getTarget() const;
     void addToStartOfSmartList(Position current);
     void addToEndOfSmartList(Position current);
     Position removeFromStartOfSmartList();
     Position removeFromEndOfSmartList();
+    void emptyStepsList();
     int findInList(Position playerPos);
     void copyToInitList();
     void copyFromInitList();
     int getSmartMovesSize();
+    
+    virtual collisionFlags moveCreature(BoardGame& board);
+    virtual string addToSave(size_t frames);
+
 };

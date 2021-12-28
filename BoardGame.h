@@ -10,7 +10,7 @@ class pacman;
 class ghost;
 
 class BoardGame
-{
+{//class to handle board's interactions
 	
 private:
 	cell** board;

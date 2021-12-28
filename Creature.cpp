@@ -13,6 +13,7 @@ Creature::~Creature()
 }
 
 Position Creature::CalculateNext(BoardGame& board) {
+    //function to calculate the next move of a creature according to its direction
     Position next(0, 0);
     switch(dir)
     {
@@ -152,6 +153,38 @@ void Creature::setInitPos(Position initPos)
 
 collisionFlags Creature::moveCreature(BoardGame& board)
 {
+    //virtual function - implemention in derived classess
     collisionFlags cf;
     return cf;
+}
+
+string Creature::addToSave(size_t frames)
+{
+    return "";
+}
+
+char Creature::convertDirToLetter(Direction dir)
+{
+    switch(dir)
+    {
+        case(Direction::DOWN):
+        return 'D';
+        break;
+        case(Direction::UP):
+        return 'U';
+        break;
+        case(Direction::STAY):
+        return 'S';
+        break;
+        case(Direction::LEFT):
+        return 'L';
+        break;
+        case(Direction::RIGHT):
+        return 'R';
+        break;
+        default:
+        return 0;
+        break;    
+    }
+    
 }

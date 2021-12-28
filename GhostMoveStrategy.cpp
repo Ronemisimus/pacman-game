@@ -49,69 +49,95 @@ Direction getDirFromPos(Position ghost, Position next)
 }
 
 Direction GhostMoveStrategy::bestMove(ghost& ghost, BoardGame& board)
-{
+{//move ghost in best level
     Direction res = Direction::STAY;
 
-    Position smartNext=ghost.removeFromStartOfSmartList();
+    /*Position smartNext=ghost.removeFromStartOfSmartList();
 
     res = getDirFromPos(ghost.getPos(),smartNext);
+
+    return res; */
+    ghost.emptyStepsList();
+    int** stepsboard = initStepsBoard(ghost, board);
+    fillStepsBoard(stepsboard, ghost.getPos());
+    fillUnfilledPlaces(stepsboard);
+    fillStepsList(ghost, stepsboard);
+
+    Position next = ghost.removeFromStartOfSmartList();
+
+    res = getDirFromPos(ghost.getPos(), next);
 
     return res;
 
 }
 
 Direction GhostMoveStrategy::goodMove(ghost& ghost, BoardGame& board)
-{
-    if(ghostMoves>=0 && ghostMoves<5)
+{//move ghost in good level
+    //random moves:
+    if (ghostMoves >= 0 && ghostMoves < 5)
     {
-        if(ghostMoves==0)
-        {
-            ghostMoves = 21+rand()%5;
-            ghost.chooseRandomDir(board);
+        if (ghostMoves == 0)
+        {//choose random smart moves amount
+            ghostMoves = 21 + rand() % 5;
         }
         else
         {
+            if (ghostMoves == 5)
+            {//move in a random direction for 5 next moves
+                ghost.chooseRandomDir(board);
+            }
             ghostMoves--;
         }
+        //calculate next move
         Position next = ghost.CalculateNext(board);
         int toRemove = ghost.findInList(next);
-
-        if(toRemove==-1)
-        {
-            if(next.x!=ghost.getPos().x ||
-                next.y!=ghost.getPos().y)
+        
+        if (toRemove == -1)
+        {//if random move isn't according to the list- add it
+            if (next.x != ghost.getPos().x ||
+                next.y != ghost.getPos().y)
             {
                 ghost.addToStartOfSmartList(ghost.getPos());
             }
         }
         else
-        {
+        {//prevent loops
             toRemove = ghost.getSmartMovesSize() - toRemove;
 
-            if(ghost.getSmartMovesSize()!=0)
+            if (ghost.getSmartMovesSize() != 0)
             {
                 toRemove++;
             }
 
-            while (toRemove>0)
+            while (toRemove > 0)
             {
                 ghost.removeFromStartOfSmartList();
                 toRemove--;
             }
         }
-
-        return ghost.getDir();
+        //prevent movement into walls
+        if (next.x > 0 && next.x < board.getColSize() &&
+            next.y>0 && next.y < board.getRowSize() &&
+            board.getCellData(next.x, next.y) != gameObjectType::WALL)
+        {
+            return ghost.getDir();
+        }
+        else
+        {
+            return Direction::STAY;
+        }
     }
-    else 
+    //smart moves:
+    else
     {
         ghostMoves--;
         return bestMove(ghost, board);
     }
-
 }
 
 Direction GhostMoveStrategy::noviceMove(ghost& ghost, BoardGame& board)
-{
+{//move ghost in novice level
+    //choose random direction once every 20 moves
     if(GhostMoveStrategy::ghostMoves==0)
     {
         ghost.chooseRandomDir(board);
@@ -131,6 +157,7 @@ Direction GhostMoveStrategy::noviceMove(ghost& ghost, BoardGame& board)
 }
 
 int** GhostMoveStrategy::initStepsBoard(ghost& ghost, BoardGame& board){
+    //creates a parallel board to count steps:
     int ** stepsBoard = new int*[colSize];
 
     int wallSteps = colSize*rowSize+1; // not possible to move that much
@@ -146,10 +173,10 @@ int** GhostMoveStrategy::initStepsBoard(ghost& ghost, BoardGame& board){
             switch (board.getCellData(i, j))
             {
             case gameObjectType::WALL:
-                stepsBoard[i][j]=wallSteps;
+                stepsBoard[i][j]=wallSteps;//blocks walking into walls
                 break;
             default:
-                stepsBoard[i][j]=-1;
+                stepsBoard[i][j]=-1;//empty reachable cell in the initiallization
                 break;
             }
         }
@@ -163,6 +190,8 @@ int** GhostMoveStrategy::initStepsBoard(ghost& ghost, BoardGame& board){
 
 void GhostMoveStrategy::fillStepsBoard(int** stepsBoard, Position source)
 {
+    //fills the parallel board with step count for every location the ghost can reach:
+       //step count - the minimal amount of steps the  ghost needs to reach a certain cell
     list<Position> toFillAround;
 
     toFillAround.push_front(source);
@@ -197,7 +226,7 @@ void GhostMoveStrategy::fillStepsBoard(int** stepsBoard, Position source)
 }
 
 void GhostMoveStrategy::fillStepsList(ghost& ghost, int** stepsBoard)
-{
+{//backtracking from pacman's position to the ghost
     bool hasMove=true;
     Position current = ghost.getTarget().getPos();
     while(hasMove && stepsBoard[current.x][current.y]!=0)
@@ -226,7 +255,7 @@ void GhostMoveStrategy::fillStepsList(ghost& ghost, int** stepsBoard)
             min = stepsBoard[current.x][current.y+1];
             minPos = Position(current.x, current.y+1);
         }
-        if(min==stepsBoard[current.x-1][current.y])
+        if(min==stepsBoard[current.x][current.y])
         {
             hasMove=false;
         }

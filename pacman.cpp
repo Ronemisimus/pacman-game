@@ -62,7 +62,19 @@ collisionFlags pacman::moveCreature(BoardGame& board)
     
 }
 
-void pacman::addFruitPoints(int value)
+string pacman::addToSave(size_t frames)
+{
+    string res = "";
+
+    if(getFrames()==0)
+    {
+        res += convertDirToLetter(getDir());
+    }
+    return res;
+
+}
+
+void pacman::addFruitPoints(size_t value)
 {
     this->points += value;
 }

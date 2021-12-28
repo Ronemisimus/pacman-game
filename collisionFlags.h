@@ -1,7 +1,7 @@
 #pragma once
 
 class collisionFlags
-{
+{//class to signal coliision between different creatures
 	bool PacmanGhost;
 	bool PacmanFruit;
 	bool FruitGhost;

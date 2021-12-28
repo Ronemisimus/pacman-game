@@ -21,7 +21,8 @@ BoardGame* FileHandler::loadNextScreen()
 }
 
 int lineLen(char line[1024])
-{
+{//calculate the logical size of the board's first line
+    //while making sure there is enough space for the legend
     int linelen = strlen(line);
     char* legend = strchr(line, CHAR_LEGEND);
 
@@ -51,10 +52,10 @@ int lineLen(char line[1024])
 BoardGame* FileHandler::loadScreen(size_t screenNum)
 {
     BoardGame* res = nullptr;
-
+    //only if the requested file exists:
     if (screenNum < filecount)
     {
-        string filename(sortedFileList[screenNum]);
+        string filename(sortedScreenFileList[screenNum]);//get the file's name
         ifstream ReadScreen(filename, std::ios_base::in);
        
         
@@ -66,7 +67,7 @@ BoardGame* FileHandler::loadScreen(size_t screenNum)
             char line[1024];
             ReadScreen.getline(line, 1024);
             row++;
-            col = lineLen(line);
+            col = lineLen(line);//save board's width
 
             while (ReadScreen.good())
             {
@@ -74,7 +75,7 @@ BoardGame* FileHandler::loadScreen(size_t screenNum)
                 row++;
             }
 
-            BoardRows = row;
+            BoardRows = row;//save board's height
 
             res = new BoardGame(BoardRows, col);
             ReadScreen.seekg(0);
@@ -90,15 +91,10 @@ void FileHandler::resetScreensLoaded()
     this->screensLoaded = 0;
 }
 
-int compar(const void* p1, const void* p2)
-{
-    string* path1 = (string*)p1;
-    string* path2 = (string*)p2;
-    return strcmp(path1->c_str(),path2->c_str());
-}
+
 
 void FileHandler::getFileList()
-{
+{//function to create a list of the screen files from the folder
 
     std::filesystem::path dir = current_path();
     di = directory_iterator(dir);
@@ -108,31 +104,28 @@ void FileHandler::getFileList()
         if (f.path().extension().compare(".screen") == 0)
         {
             count++;
-            sortedFileList.push_back(f.path().filename().generic_string());
+            sortedScreenFileList.push_back(f.path().filename().generic_string());
+        }
+        if (f.path().extension().compare(".steps") == 0)
+        {
+            sortedStepsFileList.push_back(f.path().filename().generic_string());
+        }
+        if (f.path().extension().compare(".result") == 0)
+        {
+            sortedResultFileList.push_back(f.path().filename().generic_string());
         }
     }
     filecount = count;
-  
-    sort(sortedFileList.begin(), sortedFileList.end());
-
+  //sort the files in lexicographical order
+    sort(sortedScreenFileList.begin(), sortedScreenFileList.end());
+    sort(sortedStepsFileList.begin(), sortedStepsFileList.end());
+    sort(sortedResultFileList.begin(), sortedResultFileList.end());
 }
 
-bool IsLineEmpty(char* line)
-{
-    while (line[0] != '\n' && line[0] != '\r' && line[0]!='\0')
-    {
-        if (line[0] != ' ' && line[0] != CHAR_LEGEND)
-        {
-            return false;
-        }
-        line++;
 
-    }
-    return true;
-}
 
-BoardGame* FileHandler::chooseScreen()
-{
+BoardGame* FileHandler::chooseScreen(size_t& file_num)
+{//when the user chooses to load a specific screen
     cout << "enter screen name: ";
     char filename[1024];
     cin.getline(filename, 1024);
@@ -140,11 +133,10 @@ BoardGame* FileHandler::chooseScreen()
     BoardGame* res=nullptr;
 
     bool found = false;
-    size_t file_num = 0;
 
     for (size_t i = 0; i < filecount && !found; i++)
     {
-        if(strcmp(sortedFileList[i].c_str(), filename)==0)
+        if(strcmp(sortedScreenFileList[i].c_str(), filename)==0)
         {
             found =true;
             file_num = i;
@@ -183,11 +175,25 @@ int FileHandler::getFileCount() const
 }
 
 FileHandler* FileHandler::getInstance()
-{
+{//returns the only instance of the file handler
     if(!fh)
     {
         fh = new FileHandler();
     }
     return fh;
+}
+
+ofstream* FileHandler::getSaveFile(size_t file_num) const
+{
+
+    string fname = sortedScreenFileList[file_num];
+    int lastDot=fname.rfind('.');
+    fname=fname.substr(0, lastDot)+".steps";
+    return new ofstream(fname);
+}
+
+size_t FileHandler::getScreensLoaded() const
+{
+    return screensLoaded;
 }
 
