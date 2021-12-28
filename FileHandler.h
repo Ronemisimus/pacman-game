@@ -46,6 +46,7 @@ public:
 	BoardGame* chooseScreen(size_t& file_num);
 	int getFileCount() const;
 	ofstream* getSaveFile(size_t file_num) const;
+	ifstream* getStepsFile(size_t file_num) const;
 	size_t getScreensLoaded() const;
 
 private:

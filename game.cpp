@@ -368,7 +368,7 @@ void Game::save()
         }
         else
         {
-            f << '\n' << CHAR_ENEMY << ghost_num << '\n';
+            f << '\n' << CHAR_ENEMY << '\n';
             ghost_num++;
         }
         f << creatureSave[index];
@@ -458,3 +458,165 @@ void Game::compressStrings()
         creatureSave[index] = finalResult; 
     }
 }
+
+vector<Direction> uncompress(string s)
+{
+    cout << s << '\n';
+    return vector<Direction>();
+}
+
+bool Game::loadStepsFile(ifstream& stepsFile)
+{
+    bool good=true;
+    char curr;
+    
+    stepsFile >> curr;
+    if(curr==CHAR_PACMAN)
+    {
+        string PacSteps;
+        stepsFile >> PacSteps;
+        vector<Direction> res = uncompress(PacSteps);
+        player;//add to steps
+        stepsFile>>curr;
+        if(curr!='f')
+        {
+            good =false;
+        }
+    }
+    else
+    {
+        good=false;
+    }
+
+    
+
+    if(good)
+    {
+        
+        while(good && curr!=CHAR_ENEMY)
+        {
+            int temp;
+            fruitLife fl;
+            if(!(stepsFile >> temp))
+            {
+                curr=CHAR_ENEMY;
+                stepsFile.clear();
+            }
+            if(curr!=CHAR_ENEMY)
+            {
+                if(temp>0)
+                {
+                    fl.setFrames(temp);
+                }
+                else
+                {
+                    good=false;
+                }
+                if(good)
+                {
+                    stepsFile >> temp;
+                    if(temp>=5 && temp<=9)
+                    {
+                        fl.setValue(temp);
+                    }
+                    else
+                    {
+                        good=false;
+                    }
+                }
+                Position p;
+                if(good)
+                {
+                    stepsFile >> temp;
+                    if(temp>=0 && temp<=board->getColSize())
+                    {
+                        p.x = temp;
+                    }
+                    else
+                    {
+                        good=false;
+                    }
+                }
+                if(good)
+                {
+                    stepsFile >> temp;
+                    if(temp>=0 && temp<=board->getRowSize())
+                    {
+                        p.y = temp;
+                    }
+                    else
+                    {
+                        good=false;
+                    }
+                }
+
+                if(good)
+                {
+                    fl.setPos(p);
+                    string fruitSteps;
+                    stepsFile >> fruitSteps;
+                    vector<Direction> lst = uncompress(fruitSteps);
+                    fl;//set steps
+                    fruit1.addToLives(fl);
+                }
+            }
+        }
+    }
+
+    if(good)
+    {
+        int ghost_count=0;
+        while (stepsFile.good() && good)
+        {
+            stepsFile >> curr;
+            if(curr==CHAR_ENEMY && stepsFile.good())
+            {   
+                string ghostSteps;
+                stepsFile >> ghostSteps;
+                vector<Direction> steps = uncompress(ghostSteps);
+                
+                enemies[ghost_count];// set its moves
+
+                ghost_count++;
+            }
+            else if(curr!=CHAR_ENEMY)
+            {
+                good=false;
+            }
+        }
+        
+    }
+
+    return good;
+}
+
+
+/* void Game::save()
+{
+    compressStrings();
+    ofstream& f = *saveFile;
+    int ghost_num=1;
+    for(size_t index=0;index<creatures.size();index++)
+    {
+        auto& creature = *(creatures[index]);
+        if(typeid(creature)==typeid(pacman))
+        {
+            f << CHAR_PACMAN << '\n';
+        }
+        else if(typeid(creature)==typeid(fruit))
+        {
+            f << '\n' << 'f';
+            
+        }
+        else
+        {
+            f << '\n' << CHAR_ENEMY << ghost_num << '\n';
+            ghost_num++;
+        }
+        f << creatureSave[index];
+        f << '\n';
+    }
+
+    f.close();
+} */
+

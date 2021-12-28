@@ -1,6 +1,6 @@
 #include "fruit.h"
 
-fruit::fruit(): Creature('0',Position(-1,-1),Direction::STAY),exists(false), value(0), lifeTime(0), toDelete(false)
+fruit::fruit(): Creature('0',Position(-1,-1),Direction::STAY),exists(false), value(0), lifeTime(0), toDelete(false), lives(vector<fruitLife>())
 {
 
 }
@@ -142,3 +142,12 @@ string fruit::addToSave(size_t frames)
 	return res;
 }
 
+void fruit::addToLives(fruitLife fl)
+{
+	lives.push_back(fl);
+}
+
+void fruit::clearLives()
+{
+	lives.clear();
+}

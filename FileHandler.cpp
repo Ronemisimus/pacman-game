@@ -192,6 +192,22 @@ ofstream* FileHandler::getSaveFile(size_t file_num) const
     return new ofstream(fname);
 }
 
+ifstream* FileHandler::getStepsFile(size_t file_num) const
+{
+    string fname = sortedScreenFileList[file_num];
+    int lastDot=fname.rfind('.');
+    fname=fname.substr(0, lastDot)+".steps";
+    if(file_num<sortedStepsFileList.size() && 
+        std::find(sortedStepsFileList.begin(), sortedStepsFileList.end(), fname) != sortedStepsFileList.end())
+    {
+        return new ifstream(fname);
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 size_t FileHandler::getScreensLoaded() const
 {
     return screensLoaded;

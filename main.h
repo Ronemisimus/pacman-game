@@ -23,4 +23,4 @@ bool startGame(BoardGame* board, Game& game);
 void endGameMessage(bool victory);
 void getDifficultyLevel();
 void run(bool save);
-void load(bool silent);
+bool load(bool silent);

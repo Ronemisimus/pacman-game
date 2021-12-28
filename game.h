@@ -9,6 +9,7 @@
 #include "GhostMoveStrategy.h"
 #include "fruit.h"
 #include "collisionFlags.h"
+#include "fruitLife.h"
 
 using std::ofstream;
 using std::string;
@@ -44,4 +45,5 @@ public:
     void compressStrings();
     string compressFruit(string moves);
     string compress(string dirsOnly);
+    bool loadStepsFile(ifstream& stepsFile);
 };

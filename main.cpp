@@ -43,7 +43,7 @@ int main(int argc, char** argv)
             {
                 try
                 {
-                    load(silent);
+                    goodParameters = load(silent);
                 }
                 catch(const std::exception& e)
                 {
@@ -65,14 +65,22 @@ int main(int argc, char** argv)
     }
 }
 
-void load(bool silent)
+bool load(bool silent)
 {
     FileHandler& fh = *FileHandler::getInstance();
 
     BoardGame* board = fh.loadNextScreen();
 
-    
+    ifstream* stepsFile = fh.getStepsFile(fh.getScreensLoaded()-1);    
 
+    if(stepsFile!=nullptr)
+    {
+        Game game(board);
+
+        game.loadStepsFile(*stepsFile);
+    }
+    
+    return false;
 }
 
 void run(bool save)

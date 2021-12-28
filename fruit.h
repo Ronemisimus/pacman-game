@@ -3,6 +3,7 @@
 #include "BoardGame.h"
 #include "Creature.h"
 #include "collisionFlags.h"
+#include "fruitLife.h"
 
 class fruit:public Creature {
 //class to handle the fruit's life cycle 
@@ -10,6 +11,7 @@ class fruit:public Creature {
 	int value;
 	int lifeTime;
 	bool toDelete;
+	vector<fruitLife> lives;
 public:
 	fruit();
 	virtual ~fruit();
@@ -22,7 +24,9 @@ public:
 	int getValue()const;
 	bool getExist() const;
 	void resetfruit();
-	
+	void addToLives(fruitLife fl);
+	void clearLives();
+
 	virtual collisionFlags moveCreature(BoardGame& board);
 	virtual string addToSave(size_t frames);
 	
