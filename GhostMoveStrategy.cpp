@@ -51,20 +51,16 @@ Direction getDirFromPos(Position ghost, Position next)
 Direction GhostMoveStrategy::bestMove(ghost& ghost, BoardGame& board)
 {//move ghost in best level
     Direction res = Direction::STAY;
-
-    /*Position smartNext=ghost.removeFromStartOfSmartList();
-
-    res = getDirFromPos(ghost.getPos(),smartNext);
-
-    return res; */
+    
     ghost.emptyStepsList();
+
     int** stepsboard = initStepsBoard(ghost, board);
     fillStepsBoard(stepsboard, ghost.getPos());
     fillUnfilledPlaces(stepsboard);
     fillStepsList(ghost, stepsboard);
+    freeStepsBoard(stepsboard);
 
     Position next = ghost.removeFromStartOfSmartList();
-
     res = getDirFromPos(ghost.getPos(), next);
 
     return res;

@@ -1,3 +1,4 @@
+#pragma once
 #include <fstream>
 
 using std::ifstream;
@@ -10,4 +11,8 @@ private:
     bool win;
 public:
     GameResult(ifstream* file, bool& goodFile);
+
+    int* const getDeathTimes() const;
+    int getEndTimes() const;
+    bool isWin() const;
 };

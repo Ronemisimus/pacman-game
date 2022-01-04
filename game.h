@@ -9,7 +9,9 @@
 #include "GhostMoveStrategy.h"
 #include "fruit.h"
 #include "collisionFlags.h"
+#include "GameResult.h"
 #include "fruitLife.h"
+#include "stringHandler.h"
 
 using std::ofstream;
 using std::string;
@@ -33,20 +35,17 @@ public:
     ~Game();
     void redrawBoard();
     void updateBoard(size_t frames);
-    void updateGameFromLoad(size_t frames, bool silent);
+    void updateGameFromLoad(size_t frames, bool silent, bool& correctDeaths, GameResult& res, size_t& deaths);
     bool isDone();
     void changeBoard(BoardGame* next);
     void resetStats();
-    void calculateSmartMoves();
-    void updateGhostsSmatMoveList(Position playerPos);
+    
     void fillCreatureVector();
     void setSaveFile(ofstream* saveFile);
     void save();
     void resetCreatureSave();
     void compressStrings();
-    string compressFruit(string moves);
-    string compress(string dirsOnly);
     bool loadStepsFile(ifstream& stepsFile);
-    vector<Direction>* uncompress(ifstream& stepsFile);
+
     bool checkSpeed(Creature& c);
 };

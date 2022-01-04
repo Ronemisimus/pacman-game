@@ -25,4 +25,4 @@ void endGameMessage(bool victory, bool silent);
 void getDifficultyLevel();
 void run(bool save);
 bool load(bool silent);
-bool startLoadGame(BoardGame *board, Game& game, bool silent);
+bool startLoadGame(BoardGame *board, Game& game, bool silent, GameResult& res);

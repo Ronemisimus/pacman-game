@@ -36,7 +36,7 @@ GameResult::GameResult(ifstream* file, bool& goodFile)
                 }
                 break;
             case 'l':
-                if(deaths==3 && f >> time)
+                if(deaths<=3 && f >> time)
                 {
                     this->endTime = time;
                     this->win=false;
@@ -61,6 +61,27 @@ GameResult::GameResult(ifstream* file, bool& goodFile)
                 goodFile=false;
                 break;
             }
+            
+            if(f.get()=='\r')
+            {
+                f.get();
+            }
         }        
     }
 }
+
+int* const GameResult::getDeathTimes() const
+{
+    return (int* const)deathTimes;
+}
+
+int GameResult::getEndTimes() const
+{
+    return endTime;
+}
+
+bool GameResult::isWin() const
+{
+    return win;
+}
+

@@ -93,7 +93,7 @@ bool load(bool silent)
 
         while(board)
         {
-            win = startLoadGame(board, game, silent);
+            win = startLoadGame(board, game, silent, result);
             if(win){
                 board = fh.loadNextScreen();
                 if(board)
@@ -244,19 +244,18 @@ void run(bool save)
 
 void endGameMessage(bool victory, bool silent)
 {
-    if(victory)
-    {
-        cout << "victory!!\n";   
-    }
-    else
-    {
-        cout << "Game Over!!!!\n";
-    }
-
     if(!silent)
     {
-        cout << "press any key to continue to the menu" << '\n';
+        if(victory)
+        {
+            cout << "victory!!\n";   
+        }
+        else
+        {
+            cout << "Game Over!!!!\n";
+        }
 
+        cout << "press any key to continue to the menu" << '\n';
         waitForKeyPress();
         clearScreen();
     }
@@ -332,13 +331,11 @@ bool startGame(BoardGame *board, Game& game)
     setTerminalInputMode(&saved);
 #endif
 
-    if(ghost::level!=GhostStrategy::NOVICE)
-    {
-        game.calculateSmartMoves();
-    }
-
     game.fillCreatureVector();
-   
+    
+    GhostMoveStrategy::colSize=board->getColSize();
+    GhostMoveStrategy::rowSize=board->getRowSize();
+
     board->drawBoard();
   
     size_t frame = 0;
@@ -350,7 +347,7 @@ bool startGame(BoardGame *board, Game& game)
         frame++;
         Sleep(sleepTime);
     }
-
+    
     game.save();
     game.resetCreatureSave();
 
@@ -364,15 +361,20 @@ bool startGame(BoardGame *board, Game& game)
 }
 
 
-bool startLoadGame(BoardGame *board, Game& game, bool silent)
+bool startLoadGame(BoardGame *board, Game& game, bool silent, GameResult& res)
 {
     //this function is in charge of the main game loop
-    clearScreen();
+    if(!silent)
+    {
+        clearScreen();
+    }
 
 #ifdef LINUX
     termios saved;
     setTerminalInputMode(&saved);
 #endif
+
+    size_t deathsThisGame=0;
 
     game.fillCreatureVector();
    
@@ -383,9 +385,11 @@ bool startLoadGame(BoardGame *board, Game& game, bool silent)
   
     size_t frame = 0;
 
+    bool correctDeaths = true;
+
     while(!game.isDone())
     {
-        game.updateGameFromLoad(frame,silent);
+        game.updateGameFromLoad(frame,silent,correctDeaths, res, deathsThisGame);
         if(!silent)
         {
             game.redrawBoard();
@@ -394,12 +398,25 @@ bool startLoadGame(BoardGame *board, Game& game, bool silent)
         frame++;
     }
 
+    bool win = board->getFoodLeft()==0;
 
-    clearScreen();
+    if(correctDeaths && win==res.isWin() && frame-1==(size_t)res.getEndTimes())
+    {
+        cout << "test passed\n";
+    }
+    else
+    {
+        cout << "test failed\n";
+    }
 
+    if(!silent)
+    {
+        waitForKeyPress();
+        clearScreen();
+    }
 #ifdef LINUX
     resetTerminalInputMode(saved);
 #endif
 
-    return board->getFoodLeft()==0;
+    return win;
 }
