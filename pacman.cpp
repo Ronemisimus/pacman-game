@@ -28,6 +28,7 @@ collisionFlags pacman::moveCreature(BoardGame& board)
    
     if(cf.getPacmanGhost())
     {
+        cf.setMoved(false);
         return cf;
     }
     else if (board.getCellData(next.x, next.y) == gameObjectType::WALL)
@@ -37,6 +38,7 @@ collisionFlags pacman::moveCreature(BoardGame& board)
         SetDir(Direction::STAY);
         next.x = pos.x;
         next.y = pos.y;
+        cf.setMoved(false);
         return cf;
     }
     else
@@ -57,6 +59,7 @@ collisionFlags pacman::moveCreature(BoardGame& board)
             points++;
            
         }
+        cf.setMoved(true);
         return cf;
     }
     
@@ -69,6 +72,18 @@ string pacman::addToSave(size_t frames)
     if(getFrames()==0)
     {
         res += convertDirToLetter(getDir());
+    }
+    return res;
+
+}
+
+string pacman::addToSave(size_t frames, Direction dir)
+{
+    string res = "";
+
+    if(getFrames()==0)
+    {
+        res += convertDirToLetter(dir);
     }
     return res;
 

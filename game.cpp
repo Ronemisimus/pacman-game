@@ -88,6 +88,8 @@ void Game::updateBoard(size_t frames)
 {
     //this function updates the board for every frame
     // update only if not paused
+    collisionFlags cf;
+    Direction pacmanPrev=Direction::NOCHANGE;
     if(!waitForMove && !isPaused)
     {
         
@@ -104,9 +106,7 @@ void Game::updateBoard(size_t frames)
                 creature->setFrames(creature->getFrames() + 1);
             }
         }
-     
-        
-        collisionFlags cf;
+
         //handles fruit logic
         if (fruit1.getExist())
         {
@@ -165,8 +165,9 @@ void Game::updateBoard(size_t frames)
         if(cf.getPacmanGhost())
         {
             redrawBoard();
+            pacmanPrev = player->getDir();
             player->strike(*board);
-          
+
             for (int i = 0; i < board->getGhostsNum(); i++)
             {
                
@@ -221,11 +222,25 @@ void Game::updateBoard(size_t frames)
         
     }
 
-    if(saveFile && !waitForMove && !isPaused)
+    if(saveFile && ((!waitForMove && !isPaused) || cf.getPacmanGhost()))
     {
         for(size_t i=0;i<creatures.size();i++)
         {
-            creatureSave[i]+=creatures[i]->addToSave(frames);
+            if(typeid(*creatures[i]) == typeid(pacman))
+            {
+                if(cf.getPacmanGhost())
+                {
+                    creatureSave[i]+=player->addToSave(frames, pacmanPrev);
+                }
+                else
+                {
+                    creatureSave[i]+=creatures[i]->addToSave(frames);
+                }
+            }
+            else
+            {
+                creatureSave[i]+=creatures[i]->addToSave(frames);
+            }
         }        
     }
 
@@ -383,6 +398,7 @@ void Game::resetCreatureSave()
     creatureSave.clear();
 }
 
+
 string Game::compress(string dirsOnly)
 {
     string res="";
@@ -459,10 +475,59 @@ void Game::compressStrings()
     }
 }
 
-vector<Direction> uncompress(string s)
+vector<Direction>* Game::uncompress(ifstream& stepsFile)
 {
-    cout << s << '\n';
-    return vector<Direction>();
+    vector<Direction>* res = new vector<Direction>();
+
+    Direction dir;
+    size_t amount;
+    char curr=0;
+    bool endOfSteps = false;
+    while (!endOfSteps && stepsFile.good())
+    {                                       
+        curr = stepsFile.get();
+        switch (curr)
+        {
+        case 'S':
+            dir = Direction::STAY;
+            break;
+        case 'L':
+            dir = Direction::LEFT;
+            break;
+        case 'R':
+            dir = Direction::RIGHT;
+            break;
+        case 'D':
+            dir = Direction::DOWN;
+            break;
+        case 'U':
+            dir = Direction::UP;
+            break;
+        default:
+            endOfSteps=true;
+            break;
+        }
+        if(!endOfSteps)
+        {
+            stepsFile >> amount;
+
+            for (size_t i = 0; i < amount; i++)
+            {
+                res->push_back(dir);
+            }
+            if(amount<=0)
+            {
+                endOfSteps=true;
+            }
+        }
+    }
+
+    if(curr=='\r')
+    {
+        stepsFile.get();
+    }
+    
+    return res;
 }
 
 bool Game::loadStepsFile(ifstream& stepsFile)
@@ -470,13 +535,18 @@ bool Game::loadStepsFile(ifstream& stepsFile)
     bool good=true;
     char curr;
     
+    fruit1.clearLives();
+
     stepsFile >> curr;
     if(curr==CHAR_PACMAN)
     {
-        string PacSteps;
-        stepsFile >> PacSteps;
-        vector<Direction> res = uncompress(PacSteps);
-        player;//add to steps
+        curr=stepsFile.get();
+        if(curr=='\r')
+        {
+            curr=stepsFile.get();
+        }
+        vector<Direction>* res = uncompress(stepsFile);
+        player->setLoadedMoves(res);
         stepsFile>>curr;
         if(curr!='f')
         {
@@ -495,7 +565,8 @@ bool Game::loadStepsFile(ifstream& stepsFile)
         
         while(good && curr!=CHAR_ENEMY)
         {
-            int temp;
+            size_t temp;
+            int temp2;
             fruitLife fl;
             if(!(stepsFile >> temp))
             {
@@ -514,10 +585,10 @@ bool Game::loadStepsFile(ifstream& stepsFile)
                 }
                 if(good)
                 {
-                    stepsFile >> temp;
-                    if(temp>=5 && temp<=9)
+                    stepsFile >> temp2;
+                    if(temp2>=5 && temp2<=9)
                     {
-                        fl.setValue(temp);
+                        fl.setValue(temp2);
                     }
                     else
                     {
@@ -527,10 +598,10 @@ bool Game::loadStepsFile(ifstream& stepsFile)
                 Position p;
                 if(good)
                 {
-                    stepsFile >> temp;
-                    if(temp>=0 && temp<=board->getColSize())
+                    stepsFile >> temp2;
+                    if(temp2>=0 && temp2<=board->getColSize())
                     {
-                        p.x = temp;
+                        p.x = temp2;
                     }
                     else
                     {
@@ -539,10 +610,10 @@ bool Game::loadStepsFile(ifstream& stepsFile)
                 }
                 if(good)
                 {
-                    stepsFile >> temp;
-                    if(temp>=0 && temp<=board->getRowSize())
+                    stepsFile >> temp2;
+                    if(temp2>=0 && temp2<=board->getRowSize())
                     {
-                        p.y = temp;
+                        p.y = temp2;
                     }
                     else
                     {
@@ -553,10 +624,13 @@ bool Game::loadStepsFile(ifstream& stepsFile)
                 if(good)
                 {
                     fl.setPos(p);
-                    string fruitSteps;
-                    stepsFile >> fruitSteps;
-                    vector<Direction> lst = uncompress(fruitSteps);
-                    fl;//set steps
+                    curr=stepsFile.get();
+                    if(curr=='\r')
+                    {
+                        curr=stepsFile.get();
+                    }
+                    vector<Direction>* lst = uncompress(stepsFile);
+                    fl.setSteps(lst);
                     fruit1.addToLives(fl);
                 }
             }
@@ -571,15 +645,19 @@ bool Game::loadStepsFile(ifstream& stepsFile)
             stepsFile >> curr;
             if(curr==CHAR_ENEMY && stepsFile.good())
             {   
-                string ghostSteps;
-                stepsFile >> ghostSteps;
-                vector<Direction> steps = uncompress(ghostSteps);
+
+                curr=stepsFile.get();
+                if(curr=='\r')
+                {
+                    curr=stepsFile.get();
+                }
+                vector<Direction>* steps = uncompress(stepsFile);
                 
-                enemies[ghost_count];// set its moves
+                enemies[ghost_count].setLoadedMoves(steps);
 
                 ghost_count++;
             }
-            else if(curr!=CHAR_ENEMY)
+            else if(curr!=CHAR_ENEMY && !(stepsFile.eof()))
             {
                 good=false;
             }
@@ -590,33 +668,128 @@ bool Game::loadStepsFile(ifstream& stepsFile)
     return good;
 }
 
-
-/* void Game::save()
+bool Game::checkSpeed(Creature& c)
 {
-    compressStrings();
-    ofstream& f = *saveFile;
-    int ghost_num=1;
-    for(size_t index=0;index<creatures.size();index++)
+    if(typeid(c)==typeid(pacman))
     {
-        auto& creature = *(creatures[index]);
-        if(typeid(creature)==typeid(pacman))
+        return c.getFrames()==PACMAN_SPEED;
+    }
+    if(typeid(c)==typeid(fruit))
+    {
+        return c.getFrames()==FRUIT_SPEED;
+    }
+    if(typeid(c)==typeid(ghost))
+    {
+        return c.getFrames()==GHOST_SPEED;
+    }
+
+    return false;
+}
+
+
+void Game::updateGameFromLoad(size_t frames, bool silent)
+{
+    static fruitLife* current = nullptr;
+
+    for(auto& creature: creatures)
+    {
+        bool advance = true;
+        if(typeid(*creature)==typeid(fruit))
         {
-            f << CHAR_PACMAN << '\n';
+            advance = ((fruit*)creature)->getExist();
         }
-        else if(typeid(creature)==typeid(fruit))
+        if(advance)
         {
-            f << '\n' << 'f';
-            
+            creature->setFrames(creature->getFrames() + 1);
+        }
+    }
+
+    collisionFlags cf;
+
+    for(auto& creature: creatures)
+    {
+        bool shouldMove = checkSpeed(*creature);
+
+        if(typeid(*creature) == typeid(fruit))
+        {
+            if(fruit1.getExist())
+            {
+                if(shouldMove)
+                {
+                    
+                    fruit1.decreseLifeTime();
+                    if(!fruit1.getExist())
+                    {
+                        current=nullptr;
+                    }
+                    else
+                    {
+                        fruit1.SetDir(current->getNextDir());
+                        if (!cf.getPacmanGhost() && !cf.getPacmanFruit() && !cf.getFruitGhost())
+                            cf = cf + fruit1.moveCreature(*board);
+                        fruit1.setFrames(0);
+                    }
+                }   
+            }
+            else
+            {
+                if(!current)
+                {
+                    current = fruit1.getNextLife();
+                }
+                if(current)
+                {
+                    if(frames == current->getFrames())
+                    {
+                        fruit1.setExist(true);
+                        fruit1.setInitPos(current->getPos());
+                        fruit1.setChar('0'+current->getValue());
+                        fruit1.setValue(current->getValue());
+                        fruit1.SetDir(Direction::STAY);
+                        fruit1.setFrames(0);
+                        fruit1.setLifeTime(current->getStepsLen()+1);
+                        board->setBoardCellData(fruit1.getPos().x, fruit1.getPos().y, gameObjectType::FRUIT);
+                    }
+                } 
+            }
         }
         else
         {
-            f << '\n' << CHAR_ENEMY << ghost_num << '\n';
-            ghost_num++;
+            if(shouldMove)
+            {
+                creature->SetDir(creature->getNextLoadedDir());
+                if (!cf.getPacmanGhost())
+                {
+                    cf = cf + creature->moveCreature(*board);
+                }
+                creature->setFrames(0);
+            }
         }
-        f << creatureSave[index];
-        f << '\n';
     }
 
-    f.close();
-} */
+    if(cf.getPacmanGhost())
+    {
+        if(!silent)
+            redrawBoard();
+        player->strike(*board);
+        
+        for (int i = 0; i < board->getGhostsNum(); i++)
+        {
+            
+            auto& enemy = enemies[i];
+            enemy.strike(*board);
+        }
+        fruit1.resetfruit();
+        
+    }
+    else if (cf.getPacmanFruit())
+    {
+        player->addFruitPoints(fruit1.getValue());
+        fruit1.resetfruit();
+    }
+    else if(cf.getFruitGhost())
+    {
+        fruit1.resetfruit();
+    }
+}
 

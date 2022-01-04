@@ -29,6 +29,8 @@ collisionFlags ghost::moveCreature(BoardGame& board)
     cf.setPacmanGhost(board.getCellData(pos.x, pos.y) == gameObjectType::PACMAN);
     cf.setFruitGhost(board.getCellData(pos.x, pos.y) == gameObjectType::FRUIT);
     board.setBoardCellData(pos.x, pos.y, gameObjectType::GHOST);
+
+    cf.setMoved(true);
     
     return cf;
 }

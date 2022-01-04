@@ -32,5 +32,16 @@ collisionFlags collisionFlags::operator+(const collisionFlags& merge)const
 	res.setPacmanFruit(getPacmanFruit() || merge.PacmanFruit);
 
 	res.setPacmanGhost(getPacmanGhost() || merge.PacmanGhost);
+	res.setMoved(merge.getMoved());
 	return res;
+}
+
+void collisionFlags::setMoved(bool moved)
+{
+	this->moved=moved;
+}
+
+bool collisionFlags::getMoved() const
+{
+	return moved;
 }

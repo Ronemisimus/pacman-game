@@ -1,6 +1,7 @@
 #include "fruit.h"
 
-fruit::fruit(): Creature('0',Position(-1,-1),Direction::STAY),exists(false), value(0), lifeTime(0), toDelete(false), lives(vector<fruitLife>())
+fruit::fruit(): Creature('0',Position(-1,-1),Direction::STAY),exists(false), value(0), 
+	lifeTime(0), toDelete(false), lives(vector<fruitLife>()), indexLife(0)
 {
 
 }
@@ -19,6 +20,20 @@ void fruit::chooseBeValue()
 	{
 		setChar('0'+value);
 	}
+}
+
+void fruit::setValue(int value)
+{
+	this->value = value;
+}
+
+fruitLife* fruit::getNextLife()
+{
+	if(indexLife<lives.size())
+	{
+		return &(lives[indexLife]);
+	}
+	return nullptr;
 }
 
 void fruit::chooseInitPos(BoardGame& board)
@@ -53,8 +68,8 @@ collisionFlags fruit::moveCreature(BoardGame& board)
 	tmp=CalculateNext(board);
 	prev = pos;
 	pos = tmp;
-	board.setBoardCellData(pos.x,pos.y, gameObjectType::FRUIT);
 	board.setBoardCellData(prev.x, prev.y, gameObjectType::EMPTY);
+	board.setBoardCellData(pos.x,pos.y, gameObjectType::FRUIT);
 	
 	//handle collision with other creatures:
 		cf.setPacmanFruit(board.getCellData(tmp.x, tmp.y) == gameObjectType::PACMAN);
@@ -150,4 +165,14 @@ void fruit::addToLives(fruitLife fl)
 void fruit::clearLives()
 {
 	lives.clear();
+}
+
+void fruit::setExist(bool exist)
+{
+	this->exists = exist;
+}
+
+void fruit::setLifeTime(int lifeTime)
+{
+	this->lifeTime = lifeTime;
 }

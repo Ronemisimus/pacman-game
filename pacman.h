@@ -18,6 +18,8 @@ public:
     int getPoints();
     void strike(BoardGame& board);
     void addFruitPoints(size_t value);
+    string addToSave(size_t frames, Direction dir);
+
     
     void resetLives();
     void resetPoints();

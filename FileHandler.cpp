@@ -208,6 +208,22 @@ ifstream* FileHandler::getStepsFile(size_t file_num) const
     }
 }
 
+ifstream* FileHandler::getResultFile(size_t file_num) const
+{
+    string fname = sortedScreenFileList[file_num];
+    int lastDot=fname.rfind('.');
+    fname=fname.substr(0, lastDot)+".result";
+    if(file_num<sortedResultFileList.size() && 
+        std::find(sortedResultFileList.begin(), sortedResultFileList.end(), fname) != sortedResultFileList.end())
+    {
+        return new ifstream(fname);
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 size_t FileHandler::getScreensLoaded() const
 {
     return screensLoaded;

@@ -3,6 +3,7 @@
 #include "ghost.h"
 #include "global.h"
 #include "FileHandler.h"
+#include "GameResult.h"
 #include <iostream>
 
 using std::cin;
@@ -20,7 +21,8 @@ enum class MENU {
 MENU menu();
 void present();
 bool startGame(BoardGame* board, Game& game);
-void endGameMessage(bool victory);
+void endGameMessage(bool victory, bool silent);
 void getDifficultyLevel();
 void run(bool save);
 bool load(bool silent);
+bool startLoadGame(BoardGame *board, Game& game, bool silent);

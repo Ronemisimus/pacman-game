@@ -71,13 +71,67 @@ bool load(bool silent)
 
     BoardGame* board = fh.loadNextScreen();
 
-    ifstream* stepsFile = fh.getStepsFile(fh.getScreensLoaded()-1);    
+    ifstream* stepsFile = fh.getStepsFile(fh.getScreensLoaded()-1);
+    ifstream* resultFile = fh.getResultFile(fh.getScreensLoaded()-1);    
 
-    if(stepsFile!=nullptr)
+    if(board!=nullptr && stepsFile!=nullptr && resultFile!=nullptr)
     {
         Game game(board);
 
-        game.loadStepsFile(*stepsFile);
+        bool stepsFileGood = game.loadStepsFile(*stepsFile);
+
+        bool resFileGood=true;
+
+        GameResult result = GameResult(resultFile, resFileGood);
+
+        if(!stepsFileGood || !resFileGood)
+        {
+            return false;
+        }
+
+        bool win = true;
+
+        while(board)
+        {
+            win = startLoadGame(board, game, silent);
+            if(win){
+                board = fh.loadNextScreen();
+                if(board)
+                {
+                    game.changeBoard(board);
+
+                    stepsFile = fh.getStepsFile(fh.getScreensLoaded()-1);
+                    resultFile = fh.getResultFile(fh.getScreensLoaded()-1);   
+
+                    if(stepsFile && resultFile)
+                    {
+                        stepsFileGood = game.loadStepsFile(*stepsFile);
+                        result = GameResult(resultFile, resFileGood);
+
+                        if(!stepsFileGood && !resultFile)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    board=nullptr;
+                    endGameMessage(win,silent);
+                } 
+            }
+            else
+            {
+                board = nullptr;
+                endGameMessage(win,silent);
+            }
+        }
+        
+        return true;
     }
     
     return false;
@@ -129,14 +183,14 @@ void run(bool save)
                         }
                         else
                         {
-                            endGameMessage(win);
+                            endGameMessage(win,false);
                         } 
                     }
                     else
                     {
                         delete board;
                         board = nullptr;
-                        endGameMessage(win);
+                        endGameMessage(win, false);
                     }
                 }
                 fh.resetScreensLoaded();
@@ -163,7 +217,7 @@ void run(bool save)
                 }
                 getDifficultyLevel();
                 game.changeBoard(board);
-                endGameMessage(startGame(board,game));
+                endGameMessage(startGame(board,game), false);
             }
             fh.resetScreensLoaded();
             if(board)
@@ -188,7 +242,7 @@ void run(bool save)
     }while(option != MENU::EXIT);
 }
 
-void endGameMessage(bool victory)
+void endGameMessage(bool victory, bool silent)
 {
     if(victory)
     {
@@ -199,10 +253,13 @@ void endGameMessage(bool victory)
         cout << "Game Over!!!!\n";
     }
 
-    cout << "press any key to continue to the menu" << '\n';
+    if(!silent)
+    {
+        cout << "press any key to continue to the menu" << '\n';
 
-    waitForKeyPress();
-    clearScreen();
+        waitForKeyPress();
+        clearScreen();
+    }
 }
 
 MENU menu()
@@ -306,3 +363,43 @@ bool startGame(BoardGame *board, Game& game)
     return board->getFoodLeft()==0;
 }
 
+
+bool startLoadGame(BoardGame *board, Game& game, bool silent)
+{
+    //this function is in charge of the main game loop
+    clearScreen();
+
+#ifdef LINUX
+    termios saved;
+    setTerminalInputMode(&saved);
+#endif
+
+    game.fillCreatureVector();
+   
+    if(!silent)
+    {
+        board->drawBoard();
+    }
+  
+    size_t frame = 0;
+
+    while(!game.isDone())
+    {
+        game.updateGameFromLoad(frame,silent);
+        if(!silent)
+        {
+            game.redrawBoard();
+            Sleep(20);
+        }
+        frame++;
+    }
+
+
+    clearScreen();
+
+#ifdef LINUX
+    resetTerminalInputMode(saved);
+#endif
+
+    return board->getFoodLeft()==0;
+}

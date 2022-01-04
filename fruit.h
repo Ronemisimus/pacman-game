@@ -12,10 +12,13 @@ class fruit:public Creature {
 	int lifeTime;
 	bool toDelete;
 	vector<fruitLife> lives;
+	size_t indexLife;
 public:
 	fruit();
 	virtual ~fruit();
 	void chooseBeValue();
+	void setExist(bool exist);
+	void setValue(int value);
 	void chooseInitPos(BoardGame &board);
 	void chooseLifeTime();
 	void decreseLifeTime();
@@ -26,6 +29,8 @@ public:
 	void resetfruit();
 	void addToLives(fruitLife fl);
 	void clearLives();
+	void setLifeTime(int lifeTime);
+	fruitLife* getNextLife();
 
 	virtual collisionFlags moveCreature(BoardGame& board);
 	virtual string addToSave(size_t frames);

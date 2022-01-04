@@ -33,6 +33,7 @@ public:
     ~Game();
     void redrawBoard();
     void updateBoard(size_t frames);
+    void updateGameFromLoad(size_t frames, bool silent);
     bool isDone();
     void changeBoard(BoardGame* next);
     void resetStats();
@@ -46,4 +47,6 @@ public:
     string compressFruit(string moves);
     string compress(string dirsOnly);
     bool loadStepsFile(ifstream& stepsFile);
+    vector<Direction>* uncompress(ifstream& stepsFile);
+    bool checkSpeed(Creature& c);
 };

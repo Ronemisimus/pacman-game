@@ -18,7 +18,7 @@ Direction GhostMoveStrategy::getNextDir(ghost& ghost, GhostStrategy level, Board
         return noviceMove(ghost,board);
         break;
     default:
-        return Direction::STAY;
+        return ghost.getDir();
         break;
     }
 }

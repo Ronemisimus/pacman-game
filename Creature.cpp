@@ -2,14 +2,28 @@
 #include "Creature.h"
 
 Creature::Creature(const char drawing, const Position& initPos, const Direction& dir): drawing(drawing), 
-			dir(dir), framesSinceMove(0), prev(initPos), initPos(initPos)
+			dir(dir), framesSinceMove(0), loadedMoves(nullptr), loadedMovesIndex(0), prev(initPos), initPos(initPos)
 {
     
 }
 
 Creature::~Creature()
 {
-    
+    if(loadedMoves) delete loadedMoves;
+}
+
+Direction Creature::getNextLoadedDir()
+{
+    if(loadedMoves && loadedMovesIndex<loadedMoves->size())
+    {
+        return (*loadedMoves)[loadedMovesIndex++];
+    }
+    return Direction::STAY;
+}
+
+void Creature::undoMove()
+{
+    loadedMovesIndex--;
 }
 
 Position Creature::CalculateNext(BoardGame& board) {
@@ -158,6 +172,12 @@ collisionFlags Creature::moveCreature(BoardGame& board)
     return cf;
 }
 
+void Creature::setLoadedMoves(vector<Direction>* moves)
+{
+    this->loadedMovesIndex=0;
+    this->loadedMoves = moves;
+}
+
 string Creature::addToSave(size_t frames)
 {
     return "";
@@ -188,3 +208,4 @@ char Creature::convertDirToLetter(Direction dir)
     }
     
 }
+

@@ -3,16 +3,20 @@
 class fruitLife
 {
 private:
-    int frames;
+    size_t frames;
     int value;
     Position initPos;
-    vector<Direction> steps;
-    
+    vector<Direction>* steps;
+    int currentDir=0;
+
 public:
-    int getFrames();
-    void setFrames(int frames);
+    size_t getFrames();
+    void setFrames(size_t frames);
     int getValue();
     void setValue(int val);
     Position getPos();
     void setPos(Position pos);
+    void setSteps(vector<Direction>* steps);
+    Direction getNextDir();
+    int getStepsLen();
 };
