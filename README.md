@@ -1,4 +1,4 @@
-Ronen Margolin ID: 318999349, Ronit Libenson ID: 313133035
+Creators: Ronen Margolin, Ronit Libenson
 
 Please note: When loading a specific file screen by name, enter its full name.
 exp:pacman_*.screen
